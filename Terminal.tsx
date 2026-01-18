@@ -23,50 +23,7 @@ interface TerminalProps {
  * Raw text content for the resume.
  * This string is converted to a Blob and downloaded when the 'resume' command is run.
  */
-const RESUME_CONTENT = `MISHAT HASSAN
-168 Gosling Crescent, Ottawa, ON, K2W 0K7 | mishath@mun.ca | 709-763-6828
 
-RELEVANT EXPERIENCES
-
-Senior Design Verification Engineer – Marvell Technology
-Ottawa, ON, Canada | June 2023 – Present
-• Worked extensively on Ethernet IP and SoC verification, including VIP integrations, PHY bringups, and MACsec verification.
-• Built scalable, reusable UVM testbenches for block-level and SoC-level verification.
-• Implemented functional coverage models and assertions (SVA) to ensure verification completeness and improve quality.
-• Owned the end-to-end regression verification process, from automation and execution to failure analysis and debugging.
-• Collaborated with design teams to review design specifications and define thorough test plans.
-• Maintained and upgraded existing verification infrastructure.
-
-Verification Engineer Intern – Marvell Technology
-Ottawa, ON, Canada | September 2022 – March 2023
-• Developed Python, Perl, C, and C++ test applications, scripts, and automation tools.
-• Executed regression and unit tests, ensuring code coverage and proper test assertions.
-• Designed and implemented SystemVerilog UVM testbenches.
-
-Electrical Engineering Co-op – Newfoundland and Labrador Hydro
-St. John’s, NL, Canada | January 2022 – May 2022
-• Used Bluebeam to design and modify electrical circuits.
-• Created templates for SJB, Panels, DFR, and Relays.
-• Developed a VBA + Excel-based lookup tool for schematic retrieval.
-
-EDUCATION
-
-Memorial University of Newfoundland (2017–2023)
-Bachelor of Engineering Co-op Program, Electrical Engineering
-St. John’s, Newfoundland, Canada
-
-TECHNICAL SKILLS
-• Scripting and Automation: Python, Bash
-• Verification and Simulation Tools: SystemVerilog, UVM, SVA, VCS
-• Debugging Tools: DVE, Verdi
-• Other Tools: Git, NeoVim, Jira, Confluence
-
-RELEVANT PROJECTS
-• 8-bit Computer on Breadboard (Personal)
-• Clocking-related VHDL Projects on FPGA (Course Work)
-• ALU and FIFO Design and Verification (Course Work)
-• UART Implementation on FPGA (Personal + Course Work)
-`;
 
 /**
  * Static command responses.
@@ -150,20 +107,17 @@ export default function Terminal({ onClose, onThemeChange }: TerminalProps) {
         }
 
         if (cmd === 'resume') {
-            const blob = new Blob([RESUME_CONTENT], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'Mishat_Hassan_Resume.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            const link = document.createElement('a');
+            link.href = '/Mishat_Hassan_Resume.pdf';
+            link.download = 'Mishat_Hassan_Resume.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
 
             setHistory(prev => [
                 ...prev,
                 { type: 'input', content: input },
-                { type: 'output', content: 'Initiating download sequence for Mishat_Hassan_Resume.txt...' }
+                { type: 'output', content: 'Downloading resume...' }
             ]);
             setInput('');
             return;
