@@ -413,7 +413,7 @@ const TimelineItem = ({ year, title, company, description, degree, index }: { ye
             <div className="flex flex-col gap-1">
                 <span className={`font-mono text-sm transition-colors ${isHit ? 'text-electric' : 'text-electric'}`}>{year}</span>
                 <h3 className={`text-xl font-bold transition-colors ${isHit ? 'text-electric' : 'text-white'}`}>{title} <span className="text-gray-400">@ {company}</span></h3>
-                {degree && <div className="text-orange-400 font-mono text-xs">{degree}</div>}
+                {degree && <div className="text-pcbgold font-mono text-xs">{degree}</div>}
                 <p className="text-gray-400 max-w-lg mt-2 leading-relaxed">{description}</p>
             </div>
         </div>
@@ -427,7 +427,7 @@ const TimelineItem = ({ year, title, company, description, degree, index }: { ye
  * Renders digital signals (CLK, RST, BUS) using SVG paths and div blocks.
  * Supports zooming (visual only) and time cursor navigation.
  */
-const WaveformViewer = () => {
+const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) => {
     const [cursorTime, setCursorTime] = useState<number>(2026.0);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -438,6 +438,45 @@ const WaveformViewer = () => {
 
     // Active Data based on cursor
     const activeData = TRACE_DATA.find(d => cursorTime >= d.start && cursorTime < d.end) || TRACE_DATA[0];
+
+    // Theme Colors
+    const isLight = theme === 'light';
+    const c = {
+        clk: isLight ? "text-green-700" : "text-green-500",
+        clkStroke: isLight ? "#15803d" : "#00ff41", // green-700 vs neon green
+        rst: "text-red-500",
+        state: isLight ? "text-yellow-600" : "text-yellow-500",
+        stateBorder: isLight ? "border-yellow-600/50" : "border-yellow-500/50",
+        stateBg: isLight ? "bg-yellow-600/10" : "bg-yellow-500/10",
+        stateText: isLight ? "text-yellow-600/80" : "text-yellow-500/50",
+
+        company: isLight ? "text-blue-700" : "text-electric", // Electric is cyan, usually maps to blue-400/500 style in dark
+        companyBorder: isLight ? "border-blue-700/50" : "border-electric/50",
+        companyBg: isLight ? "bg-blue-700/10" : "bg-electric/10",
+        companyText: isLight ? "text-blue-700/80" : "text-electric/80",
+        companySkew: isLight ? "bg-blue-700/5" : "bg-electric/5",
+
+        school: isLight ? "text-sky-600" : "text-blue-400",
+        schoolBorder: isLight ? "border-sky-600/50" : "border-blue-500/50", // was blue-500 in original
+        schoolBg: isLight ? "bg-sky-600/10" : "bg-blue-500/10",
+        schoolText: isLight ? "text-sky-600/80" : "text-blue-400/80",
+        schoolSkew: isLight ? "bg-sky-600/5" : "bg-blue-500/5",
+
+        degree: isLight ? "text-orange-600" : "text-orange-400",
+        degreeBorder: isLight ? "border-orange-600/50" : "border-orange-500/50",
+        degreeBg: isLight ? "bg-orange-600/10" : "bg-orange-500/10",
+        degreeText: isLight ? "text-orange-600/80" : "text-orange-400/80",
+        degreeSkew: isLight ? "bg-orange-600/5" : "bg-orange-500/5",
+
+        role: isLight ? "text-purple-700" : "text-purple-400",
+        roleBorder: isLight ? "border-purple-700/50" : "border-purple-500/50",
+        roleBg: isLight ? "bg-purple-700/10" : "bg-purple-500/10",
+        roleText: isLight ? "text-purple-700/80" : "text-purple-400/80",
+
+        eduRole: isLight ? "text-gray-600" : "text-gray-300",
+        eduBorder: isLight ? "border-gray-500/50" : "border-gray-600/30",
+        eduBg: isLight ? "bg-gray-800" : "bg-gray-700"
+    };
 
     const handleMouseMove = (e: React.MouseEvent) => {
         if (!containerRef.current) return;
@@ -474,26 +513,26 @@ const WaveformViewer = () => {
                 </div>
             </div>
 
-            <div className="flex h-[450px]">
+            <div className="flex h-[500px]">
                 {/* Signals List (Sidebar) */}
                 <div className="w-56 md:w-80 bg-black border-r border-gray-800 flex flex-col shrink-0">
                     <div className="h-10 border-b border-gray-800 flex items-center px-2 text-gray-500 bg-gray-900/50">Signals</div>
-                    <SignalRow name="sys_clk" color="text-green-500" value="1" />
-                    <SignalRow name="rst_n" color="text-red-500" value="1" />
-                    <SignalRow name="state[3:0]" color="text-yellow-500" value={activeData.stateCode} />
-                    <SignalRow name="company_bus" color="text-electric" value={activeData.company.substring(0, 16) + (activeData.company.length > 16 ? "..." : "")} isBus />
-                    <SignalRow name="school_bus" color="text-blue-400" value={activeData.school.substring(0, 16) + (activeData.school.length > 16 ? "..." : "")} isBus />
-                    <SignalRow name="degree" color="text-orange-400" value={activeData.degree.substring(0, 16) + (activeData.degree.length > 16 ? "..." : "")} isBus />
-                    <SignalRow name="role_bus" color="text-purple-400" value={activeData.title.substring(0, 16) + (activeData.title.length > 16 ? "..." : "")} isBus />
+                    <SignalRow name="sys_clk" color={c.clk} value="1" />
+                    <SignalRow name="rst_n" color={c.rst} value="1" />
+                    <SignalRow name="state[3:0]" color={c.state} value={activeData.stateCode} />
+                    <SignalRow name="company_bus" color={c.company} value={activeData.company.substring(0, 16) + (activeData.company.length > 16 ? "..." : "")} isBus />
+                    <SignalRow name="school_bus" color={c.school} value={activeData.school.substring(0, 16) + (activeData.school.length > 16 ? "..." : "")} isBus />
+                    <SignalRow name="degree" color={c.degree} value={activeData.degree.substring(0, 16) + (activeData.degree.length > 16 ? "..." : "")} isBus />
+                    <SignalRow name="role_bus" color={c.role} value={activeData.title.substring(0, 16) + (activeData.title.length > 16 ? "..." : "")} isBus />
 
                     {/* Active Transaction Detail Panel (in sidebar for mobile, or distinct area) */}
-                    <div className="mt-auto p-4 border-t border-gray-800 bg-gray-900/20">
-                        <div className="text-gray-500 mb-1">Transaction Detail:</div>
-                        <div className="text-purple-400 font-bold mb-1">{activeData.title}</div>
-                        <div className="text-electric mb-2">{activeData.company}</div>
-                        <div className="text-blue-400 mb-2">{activeData.school}</div>
-                        <div className="text-orange-400 mb-2">{activeData.degree}</div>
-                        <div className="text-gray-600 text-[10px] leading-tight line-clamp-3">{activeData.description}</div>
+                    {/* Active Transaction Detail Panel */}
+                    <div className="p-4 bg-gray-900/20 h-48 flex flex-col justify-start">
+                        <div className="text-gray-500 mb-1 text-[10px] uppercase tracking-wider">Transaction Detail</div>
+                        <div className={`${c.role} font-bold mb-0.5 truncate`}>{activeData.title}</div>
+                        <div className={`${c.company} mb-0.5 truncate`}>{activeData.company}</div>
+                        <div className={`${c.school} mb-0.5 truncate`}>{activeData.school}</div>
+                        <div className={`${c.degree} truncate`}>{activeData.degree}</div>
                     </div>
                 </div>
 
@@ -527,7 +566,7 @@ const WaveformViewer = () => {
                         {/* CLK */}
                         <div className="h-10 relative border-b border-white/5 w-full">
                             <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 24">
-                                <path d={clockPath} fill="none" stroke="#00ff41" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+                                <path d={clockPath} fill="none" stroke={c.clkStroke} strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
                             </svg>
                         </div>
                         {/* RST */}
@@ -539,13 +578,13 @@ const WaveformViewer = () => {
                             {TRACE_DATA.map((d, i) => (
                                 <div
                                     key={i}
-                                    className="absolute h-6 top-2 border border-yellow-500/50 bg-yellow-500/10 flex items-center justify-center overflow-hidden"
+                                    className={`absolute h-6 top-2 border flex items-center justify-center overflow-hidden ${c.stateBorder} ${c.stateBg}`}
                                     style={{
                                         left: getX(d.start),
                                         width: `${((d.end - d.start) / duration) * 100}%`
                                     }}
                                 >
-                                    <span className="text-yellow-500/50 text-[10px]">{d.stateCode}</span>
+                                    <span className={`${c.stateText} text-[10px]`}>{d.stateCode}</span>
                                 </div>
                             ))}
                         </div>
@@ -554,14 +593,14 @@ const WaveformViewer = () => {
                             {TRACE_DATA.map((d, i) => d.company ? (
                                 <div
                                     key={i}
-                                    className="absolute h-6 top-2 border border-electric/50 bg-electric/10 flex items-center justify-center overflow-hidden px-1"
+                                    className={`absolute h-6 top-2 border flex items-center justify-center overflow-hidden px-1 ${c.companyBorder} ${c.companyBg}`}
                                     style={{
                                         left: getX(d.start),
                                         width: `${((d.end - d.start) / duration) * 100}%`
                                     }}
                                 >
-                                    <div className="absolute inset-0 bg-electric/5 skew-x-12" />
-                                    <span className="text-electric/80 z-10 truncate">{d.company}</span>
+                                    <div className={`absolute inset-0 skew-x-12 ${c.companySkew}`} />
+                                    <span className={`${c.companyText} z-10 truncate`}>{d.company}</span>
                                 </div>
                             ) : null)}
                         </div>
@@ -570,14 +609,14 @@ const WaveformViewer = () => {
                             {TRACE_DATA.map((d, i) => d.school ? (
                                 <div
                                     key={i}
-                                    className="absolute h-6 top-2 border border-blue-500/50 bg-blue-500/10 flex items-center justify-center overflow-hidden px-1"
+                                    className={`absolute h-6 top-2 border flex items-center justify-center overflow-hidden px-1 ${c.schoolBorder} ${c.schoolBg}`}
                                     style={{
                                         left: getX(d.start),
                                         width: `${((d.end - d.start) / duration) * 100}%`
                                     }}
                                 >
-                                    <div className="absolute inset-0 bg-blue-500/5 skew-x-12" />
-                                    <span className="text-blue-400/80 z-10 truncate">{d.school}</span>
+                                    <div className={`absolute inset-0 skew-x-12 ${c.schoolSkew}`} />
+                                    <span className={`${c.schoolText} z-10 truncate`}>{d.school}</span>
                                 </div>
                             ) : null)}
                         </div>
@@ -586,14 +625,14 @@ const WaveformViewer = () => {
                             {TRACE_DATA.map((d, i) => d.degree ? (
                                 <div
                                     key={i}
-                                    className="absolute h-6 top-2 border border-orange-500/50 bg-orange-500/10 flex items-center justify-center overflow-hidden px-1"
+                                    className={`absolute h-6 top-2 border flex items-center justify-center overflow-hidden px-1 ${c.degreeBorder} ${c.degreeBg}`}
                                     style={{
                                         left: getX(d.start),
                                         width: `${((d.end - d.start) / duration) * 100}%`
                                     }}
                                 >
-                                    <div className="absolute inset-0 bg-orange-500/5 skew-x-12" />
-                                    <span className="text-orange-400/80 z-10 truncate">{d.degree}</span>
+                                    <div className={`absolute inset-0 skew-x-12 ${c.degreeSkew}`} />
+                                    <span className={`${c.degreeText} z-10 truncate`}>{d.degree}</span>
                                 </div>
                             ) : null)}
                         </div>
@@ -603,20 +642,20 @@ const WaveformViewer = () => {
                             {TRACE_DATA.slice().sort((a, b) => a.type === 'EDU' ? -1 : 1).map((d, i) => (
                                 <div
                                     key={i}
-                                    className={`absolute h-6 top-2 border bg-opacity-10 flex items-center justify-center overflow-hidden px-1 ${d.type === 'EDU' ? 'border-gray-500/30 bg-gray-500 z-0' : 'border-purple-500/50 bg-purple-500 z-10'}`}
+                                    className={`absolute h-6 top-2 border bg-opacity-10 flex items-center justify-center overflow-hidden px-1 ${d.type === 'EDU' ? `${c.eduBorder} ${c.eduBg} z-0` : `${c.roleBorder} ${c.roleBg} z-10`}`}
                                     style={{
                                         left: getX(d.start),
                                         width: `${((d.end - d.start) / duration) * 100}%`
                                     }}
                                 >
-                                    <span className={`${d.type === 'EDU' ? 'text-gray-400' : 'text-purple-400/80'} z-10 truncate`}>{d.title}</span>
+                                    <span className={`${d.type === 'EDU' ? c.eduRole : c.roleText} z-10 truncate`}>{d.title}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -912,8 +951,8 @@ const AppContent = () => {
 
                                 <CyberText text="MISHAT" />
 
-                                <p className={`text-gray-300 font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap ${theme === 'silicon' ? 'text-sm md:text-base tracking-widest' : 'text-xl md:text-2xl'}`}>
-                                    Senior Design Verification Engineer <span className="text-pcbgold font-medium">@ Marvell Technology</span>
+                                <p className={`font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap ${theme === 'silicon' ? 'text-gray-300 text-sm md:text-base tracking-widest' : 'text-gray-600 text-lg md:text-xl font-medium'}`}>
+                                    Senior Design Verification Engineer <span className="text-pcbgold font-bold">@ Marvell Technology</span>
                                 </p>
 
                                 <div className="h-12 mt-8 flex justify-center items-center">
@@ -927,7 +966,7 @@ const AppContent = () => {
                                             {tooltip}
                                         </motion.div>
                                     ) : (
-                                        <span className="text-gray-600 text-xs font-mono animate-pulse">Initialize hover sequence on SoC...</span>
+                                        <span className="text-gray-700 text-xs font-mono animate-pulse">Initialize hover sequence on SoC...</span>
                                     )}
                                 </div>
 
@@ -935,7 +974,7 @@ const AppContent = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 0.5 }}
                                     transition={{ delay: 2 }}
-                                    className="mt-8 text-[10px] text-gray-500 font-mono"
+                                    className="mt-8 text-[10px] text-gray-700 font-mono"
                                 >
                                     Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump
                                 </motion.div>
@@ -1068,7 +1107,7 @@ const AppContent = () => {
 
                                 <button
                                     onClick={() => setViewMode(prev => prev === 'log' ? 'wave' : 'log')}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-all text-sm font-mono group"
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-700 border border-gray-700 rounded-lg transition-all text-sm font-mono group"
                                 >
                                     {viewMode === 'log' ? (
                                         <>
@@ -1107,7 +1146,7 @@ const AppContent = () => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                 >
-                                    <WaveformViewer />
+                                    <WaveformViewer theme={theme} />
                                 </motion.div>
                             )}
                         </div>

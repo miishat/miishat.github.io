@@ -6,7 +6,7 @@
  * @author Mishat
  */
 import React, { useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Text, Float, Html, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion } from 'framer-motion-3d';
@@ -76,11 +76,11 @@ const IPBlock = ({ position, size, color, label, description, onClick, hoverColo
         <group position={new THREE.Vector3(...position)}>
             <mesh
                 ref={mesh}
-                onClick={(e) => {
+                onClick={(e: ThreeEvent<MouseEvent>) => {
                     e.stopPropagation();
                     onClick(label, description);
                 }}
-                onPointerOver={(e) => {
+                onPointerOver={(e: ThreeEvent<MouseEvent>) => {
                     e.stopPropagation();
                     setHover(true);
                     document.body.style.cursor = 'pointer';
@@ -135,12 +135,12 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
         }
     });
 
-    const baseColor = isLightMode ? '#e2e8f0' : '#1a1a1a';
-    const dieColor = isLightMode ? '#cbd5e1' : '#111';
-    const pinColor = isLightMode ? '#94a3b8' : '#d4af37';
-    const blockColor1 = isLightMode ? '#94a3b8' : '#333';
-    const blockColor2 = isLightMode ? '#64748b' : '#222';
-    const hoverColor = isLightMode ? '#0284c7' : '#00f3ff';
+    const baseColor = isLightMode ? '#cbd5e1' : '#1a1a1a';
+    const dieColor = isLightMode ? '#64748b' : '#111';
+    const pinColor = isLightMode ? '#475569' : '#d4af37';
+    const blockColor1 = isLightMode ? '#475569' : '#333';
+    const blockColor2 = isLightMode ? '#334155' : '#222';
+    const hoverColor = isLightMode ? '#7c3aed' : '#00f3ff';
 
     return (
         <group ref={chipRef} rotation={[0.5, 0, 0]}>
