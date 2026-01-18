@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mishat | Senior Design Verification Engineer</title>
+    <meta name="description" content="Senior Design Verification Engineer specializing in UVM and SoC Validation." />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS with Custom Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Map all colors to CSS variables to allow full theme inversion
+                        black: 'rgb(var(--color-black) / <alpha-value>)',
+                        white: 'rgb(var(--color-white) / <alpha-value>)',
+                        obsidian: 'var(--color-obsidian)',
+                        electric: 'var(--color-electric)',
+                        deepblue: 'var(--color-deepblue)',
+                        neonpurple: 'var(--color-neonpurple)',
+                        pcbgold: 'var(--color-pcbgold)',
+                        success: 'var(--color-success)',
+                        error: '#ff0033',
+                        gray: {
+                            100: 'var(--color-gray-100)',
+                            200: 'var(--color-gray-200)',
+                            300: 'var(--color-gray-300)',
+                            400: 'var(--color-gray-400)',
+                            500: 'var(--color-gray-500)',
+                            600: 'var(--color-gray-600)',
+                            700: 'var(--color-gray-700)',
+                            800: 'var(--color-gray-800)',
+                            900: 'var(--color-gray-900)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, var(--color-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px)",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            /* Base RGB values for Alpha Support */
+            --color-black: 0 0 0;
+            --color-white: 255 255 255;
+
+            /* Obsidian Theme (Dark Mode Default) */
+            --color-obsidian: #050510;
+            --color-electric: #00f3ff;
+            --color-deepblue: #0a0a1f;
+            --color-neonpurple: #b026ff;
+            --color-pcbgold: #d4af37;
+            --color-success: #00ff41;
+
+            --color-grid: #1f1f3a;
+
+            /* Standard Gray Scale */
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-600: #4b5563;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+        }
+
+        body {
+            background-color: var(--color-obsidian);
+            color: rgb(var(--color-white));
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Clean Lab Theme (Light Mode) */
+        body.theme-light {
+            /* Invert Base Colors: Black becomes White (cards), White becomes Black (text) */
+            --color-black: 255 255 255;
+            --color-white: 15 23 42;
+            /* Slate 900 */
+
+            --color-obsidian: #f0f4f8;
+            /* Cool Engineering Gray/Blue */
+            --color-electric: #0284c7;
+            /* Sky 600 */
+            --color-deepblue: #e2e8f0;
+            /* Slate 200 */
+            --color-neonpurple: #7c3aed;
+            /* Violet 600 */
+            --color-pcbgold: #d97706;
+            /* Amber 600 */
+            --color-success: #059669;
+            /* Emerald 600 */
+
+            --color-grid: #cbd5e1;
+
+            /* Inverted Gray Scale for High Contrast */
+            --color-gray-100: #0f172a;
+            /* Slate 900 (Input Text) */
+            --color-gray-200: #1e293b;
+            /* Slate 800 */
+            --color-gray-300: #334155;
+            /* Slate 700 (Subtitles) */
+            --color-gray-400: #475569;
+            /* Slate 600 (Descriptions) */
+            --color-gray-500: #64748b;
+            /* Slate 500 */
+            --color-gray-600: #475569;
+            /* Slate 600 (Dim text) */
+            --color-gray-700: #94a3b8;
+            /* Slate 400 (Borders/Accents) */
+            --color-gray-800: #cbd5e1;
+            /* Slate 300 (Card Borders) */
+            --color-gray-900: #ffffff;
+            /* White (Card Backgrounds) */
+
+            background-image:
+                linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Component Specific Overrides for Light Mode */
+        body.theme-light .glow-text {
+            text-shadow: none;
+            color: #0284c7 !important;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        body.theme-light .mix-blend-screen {
+            mix-blend-mode: normal !important;
+        }
+
+        body.theme-light input {
+            caret-color: #0284c7;
+        }
+
+        /* Fix placeholder contrast */
+        body.theme-light .placeholder-gray-600::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        /* Silicon X-Ray Theme - RTL/Gate Level Schematic Aesthetic */
+        body.theme-silicon {
+            --color-obsidian: #000800;
+            --color-electric: #39ff14;
+            /* Neon Green */
+            --color-deepblue: #001a00;
+            --color-neonpurple: #00ff00;
+            --color-pcbgold: #ccff00;
+            --color-success: #00ff33;
+
+            --color-gray-100: #e0ffe0;
+            --color-gray-200: #ccffcc;
+            --color-gray-300: #99ff99;
+            --color-gray-400: #66cc66;
+            --color-gray-500: #339933;
+            --color-gray-600: #226622;
+            --color-gray-700: #114411;
+            --color-gray-800: #0a2a0a;
+            --color-gray-900: #051505;
+
+            background-color: #000500;
+            /* Schematic Grid + Power Rails */
+            background-image:
+                linear-gradient(rgba(57, 255, 20, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(57, 255, 20, 0.15) 1px, transparent 1px),
+                linear-gradient(rgba(57, 255, 20, 0.1) 2px, transparent 2px);
+            background-size: 20px 20px, 20px 20px, 100% 80px;
+        }
+
+        body.theme-silicon * {
+            border-radius: 0 !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            box-shadow: none !important;
+            letter-spacing: 0.05em;
+        }
+
+        body.theme-silicon div {
+            border-color: rgba(0, 255, 0, 0.2);
+        }
+
+        /* Module Boundaries */
+        body.theme-silicon section {
+            border: 1px dashed var(--color-gray-600);
+            position: relative;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            background: rgba(0, 20, 0, 0.3);
+            overflow: visible !important;
+        }
+
+        body.theme-silicon section::before {
+            content: "module " attr(id) " ();";
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: var(--color-obsidian);
+            color: var(--color-electric);
+            border: 1px solid var(--color-electric);
+            padding: 0 8px;
+            font-size: 12px;
+            z-index: 50;
+            font-weight: bold;
+        }
+
+        body.theme-silicon section::after {
+            content: "endmodule // " attr(id);
+            position: absolute;
+            bottom: -10px;
+            right: 10px;
+            background: var(--color-obsidian);
+            color: var(--color-electric);
+            border: 1px solid var(--color-electric);
+            padding: 0 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Logic Gates / Instances (Cards) */
+        body.theme-silicon .group {
+            border: 2px solid var(--color-gray-600) !important;
+            background: rgba(0, 30, 0, 0.95) !important;
+            position: relative;
+            overflow: visible !important;
+            /* Show pins */
+            transition: all 0.1s steps(2);
+        }
+
+        body.theme-silicon .group:hover {
+            border-color: var(--color-electric) !important;
+            z-index: 10;
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px var(--color-electric) !important;
+        }
+
+        /* Simulated Input/Output Pins */
+        body.theme-silicon .group::before {
+            content: "I";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: var(--color-obsidian);
+            font-weight: bold;
+            position: absolute;
+            top: 20%;
+            left: -8px;
+            width: 8px;
+            height: 8px;
+            background: var(--color-electric);
+            border: 1px solid var(--color-electric);
+        }
+
+        body.theme-silicon .group::after {
+            content: "O";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: var(--color-obsidian);
+            font-weight: bold;
+            position: absolute;
+            bottom: 20%;
+            right: -8px;
+            width: 8px;
+            height: 8px;
+            background: var(--color-electric);
+            border: 1px solid var(--color-electric);
+        }
+
+        /* Force high contrast borders in silicon mode for better wireframe look */
+        body.theme-silicon .border-gray-800 {
+            border-color: rgba(0, 255, 0, 0.3) !important;
+        }
+
+        /* Typography */
+        body.theme-silicon h1,
+        body.theme-silicon h2,
+        body.theme-silicon h3,
+        body.theme-silicon span {
+            text-transform: uppercase;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-obsidian);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-gray-800);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-electric);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        body.theme-silicon .glow-text {
+            text-shadow: 0 0 8px rgba(57, 255, 20, 0.8);
+            color: #39ff14 !important;
+        }
+
+        /* Scanline overlay for CRT effect */
+        body.theme-silicon::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Wire connections for timeline */
+        body.theme-silicon .border-l-2 {
+            border-left: 2px solid var(--color-electric) !important;
+            border-style: steps(2) !important;
+        }
+
+        /* Hide background gradients in cards for cleaner schematic look */
+        body.theme-silicon .bg-gradient-to-br {
+            opacity: 0;
+        }
+
+        /* Icons flat color */
+        body.theme-silicon svg {
+            color: var(--color-electric) !important;
+            filter: drop-shadow(0 0 2px var(--color-electric));
+        }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "framer-motion": "https://esm.sh/framer-motion@^12.26.2",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@^10.7.7",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.5.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "three": "https://esm.sh/three@^0.182.0",
+    "framer-motion-3d": "https://esm.sh/framer-motion-3d@^12.4.13"
+  }
+}
+</script>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
