@@ -2,19 +2,20 @@
 <html lang="en">
 
 <head>
+    <!-- Essential Meta Tags -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mishat | Senior Design Verification Engineer</title>
     <meta name="description" content="Senior Design Verification Engineer specializing in UVM and SoC Validation." />
 
-    <!-- Fonts -->
+    <!-- Typography: Preconnects & Google Fonts (Inter + JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
 
-    <!-- Tailwind CSS with Custom Config -->
+    <!-- Tailwind CSS: Runtime Configuration & Custom Design Tokens -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -55,6 +56,9 @@
         }
     </script>
     <style>
+        /* -------------------------------------------------------------------------- */
+        /*                              Design Tokens                                 */
+        /* -------------------------------------------------------------------------- */
         :root {
             /* Base RGB values for Alpha Support */
             --color-black: 0 0 0;
@@ -82,6 +86,9 @@
             --color-gray-900: #111827;
         }
 
+        /* -------------------------------------------------------------------------- */
+        /*                            Global Body Styles                              */
+        /* -------------------------------------------------------------------------- */
         body {
             background-color: var(--color-obsidian);
             color: rgb(var(--color-white));
@@ -89,6 +96,9 @@
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
+        /* -------------------------------------------------------------------------- */
+        /*                        Theme: Light (Clean Lab)                            */
+        /* -------------------------------------------------------------------------- */
         /* Clean Lab Theme (Light Mode) */
         body.theme-light {
             /* Invert Base Colors: Black becomes White (cards), White becomes Black (text) */
@@ -158,6 +168,9 @@
             color: #94a3b8 !important;
         }
 
+        /* -------------------------------------------------------------------------- */
+        /*                       Theme: Silicon (X-Ray/Schematic)                     */
+        /* -------------------------------------------------------------------------- */
         /* Silicon X-Ray Theme - RTL/Gate Level Schematic Aesthetic */
         body.theme-silicon {
             --color-obsidian: #000800;
@@ -300,6 +313,9 @@
             text-transform: uppercase;
         }
 
+        /* -------------------------------------------------------------------------- */
+        /*                            UI Customization                                */
+        /* -------------------------------------------------------------------------- */
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -359,6 +375,7 @@
             filter: drop-shadow(0 0 2px var(--color-electric));
         }
     </style>
+    <!-- Import Map: Defines dependencies for React 19, Framer Motion, and Three.js -->
     <script type="importmap">
 {
   "imports": {
@@ -377,7 +394,9 @@
 </head>
 
 <body>
+    <!-- React Application Mount Point -->
     <div id="root"></div>
+    <!-- Application Entry Script -->
     <script type="module" src="/index.tsx"></script>
 </body>
 

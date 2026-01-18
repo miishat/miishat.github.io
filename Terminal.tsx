@@ -1,11 +1,28 @@
+/**
+ * @file Terminal.tsx
+ * @description Interactive fake terminal emulator.
+ * Provides a CLI interface for users to explore skills, contact info, and "run" simulations.
+ * Supports commands, history navigation, and theme toggling.
+ * 
+ * @author Mishat
+ */
 import React, { useState, useRef, useEffect } from 'react';
 import { Terminal as TerminalIcon, X, Maximize2, Minus } from 'lucide-react';
 
+/**
+ * Props for the Terminal component.
+ */
 interface TerminalProps {
+    /** Callback when the close button (red dot) is clicked */
     onClose?: () => void;
+    /** Callback to switch the global application theme */
     onThemeChange?: (theme: 'default' | 'silicon' | 'light') => void;
 }
 
+/**
+ * Raw text content for the resume.
+ * This string is converted to a Blob and downloaded when the 'resume' command is run.
+ */
 const RESUME_CONTENT = `MISHAT HASSAN
 168 Gosling Crescent, Ottawa, ON, K2W 0K7 | mishath@mun.ca | 709-763-6828
 
@@ -51,6 +68,10 @@ RELEVANT PROJECTS
 • UART Implementation on FPGA (Personal + Course Work)
 `;
 
+/**
+ * Static command responses.
+ * Maps command strings to their output messages.
+ */
 const COMMANDS: Record<string, string> = {
     'help': 'Available commands: help, whoami, skills, contact, clear, run_test, resume, theme [silicon|light|dark]',
     'whoami': 'Mishat | Senior Design Verification Engineer @ Marvell Technology. Obsessed with zero bugs.',
@@ -59,6 +80,15 @@ const COMMANDS: Record<string, string> = {
     'run_test': 'Starting UVM Sequence...\nRunning test_soc_boot...\nWait for interrupt...\nTEST PASSED (Coverage: 100%)',
 };
 
+/**
+ * Terminal Component.
+ * Emulates a basic shell environment.
+ * 
+ * Features:
+ * - Command history (visual only, not arrow key nav yet)
+ * - Auto-scroll to bottom on new output
+ * - Custom commands: help, whoami, skills, contact, run_test, resume, theme
+ */
 export default function Terminal({ onClose, onThemeChange }: TerminalProps) {
     const [history, setHistory] = useState<Array<{ type: 'input' | 'output'; content: string }>>([
         { type: 'output', content: 'MishatOS v2.0.0 [Senior Build]' },
@@ -67,6 +97,10 @@ export default function Terminal({ onClose, onThemeChange }: TerminalProps) {
     const [input, setInput] = useState('');
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    /**
+     * Handles command submission.
+     * Parses input, executes logic (or looks up static response), and updates history.
+     */
     const handleCommand = (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim()) return;

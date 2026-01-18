@@ -1,10 +1,21 @@
+/**
+ * @file SoCScene.tsx
+ * @description 3D Visualization of the System-on-Chip (SoC).
+ * Renders a stylized silicon die with interactive IP blocks using React Three Fiber.
+ * 
+ * @author Mishat
+ */
 import React, { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Float, Html, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion } from 'framer-motion-3d';
 
-// Explicitly extend JSX.IntrinsicElements for React Three Fiber components
+/**
+ * TypeScript definitions for React Three Fiber (R3F) elements.
+ * R3F dynamically creates these elements, so we must explicitly tell TS about them
+ * to avoid "Property does not exist on type JSX.IntrinsicElements" errors.
+ */
 declare global {
     namespace JSX {
         interface IntrinsicElements {
@@ -47,6 +58,10 @@ interface BlockProps {
     hoverColor?: string;
 }
 
+/**
+ * Represents a single functional block (IP) on the silicon die.
+ * Interactive: Expands and glows on hover, displays a floating HTML label.
+ */
 const IPBlock = ({ position, size, color, label, description, onClick, hoverColor = '#00f3ff' }: BlockProps) => {
     const mesh = useRef<THREE.Mesh>(null);
     const [hovered, setHover] = useState(false);
@@ -101,6 +116,16 @@ const IPBlock = ({ position, size, color, label, description, onClick, hoverColo
     );
 };
 
+/**
+ * The main Processor Chip assembly.
+ * Composed of:
+ * - Substrate (Base layer)
+ * - Die (Silicon layer)
+ * - Pins (gold/silver connectors)
+ * - IP Blocks (Interactive zones)
+ * 
+ * Rotates slowly to showcase 3D depth.
+ */
 const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: string, d: string) => void, isLightMode: boolean }) => {
     const chipRef = useRef<THREE.Group>(null);
 
@@ -187,6 +212,14 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
     );
 };
 
+/**
+ * Main Scene Container.
+ * Sets up the 3D environment:
+ * - Canvas & Camera
+ * - Lighting (Ambient + Dual Point Lights)
+ * - Environment (Fog, Stars)
+ * - Controls (Orbit, Floating animation)
+ */
 export default function SoCScene({ setTooltip, theme = 'default' }: { setTooltip: (t: string) => void, theme?: string }) {
     const isLightMode = theme === 'light';
 

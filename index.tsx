@@ -1,3 +1,10 @@
+/**
+ * @file index.tsx
+ * @description Main entry point for the Portfolio Application.
+ * Orchestrates the full-page layout, initializes the theme, and manages the global signal visual system.
+ * 
+ * @author Mishat
+ */
 import React, { useState, useRef, useEffect, createContext, useContext, useMemo, useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useSpring, useTransform, useMotionValue } from 'framer-motion';
@@ -19,6 +26,10 @@ type TargetRegistry = {
     trace: React.RefObject<HTMLDivElement>[];
 };
 
+/**
+ * Context to manage the "Signal" visual effect system.
+ * Allows components to register their position and emit/receive signal packets (particles).
+ */
 const SignalContext = createContext<{
     registerTarget: (type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement>) => void;
     emitSignal: (rect: DOMRect, color: string) => void;
@@ -91,6 +102,10 @@ const TRACE_DATA = [
 
 // --- Visual Components ---
 
+/**
+ * Simulates a hardware bootup sequence with scrolling log text.
+ * Blocks the main UI until the "boot" is complete.
+ */
 const BootSequence = ({ onComplete }: { onComplete: () => void }) => {
     const [lines, setLines] = useState<string[]>([]);
 
@@ -133,6 +148,10 @@ const BootSequence = ({ onComplete }: { onComplete: () => void }) => {
     );
 };
 
+/**
+ * Custom hardware-probe style cursor (crosshair) that replaces the default pointer.
+ * Only visible on non-touch devices.
+ */
 const CustomCursor = () => {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isVisible, setIsVisible] = useState(false);
@@ -167,6 +186,10 @@ const CustomCursor = () => {
     );
 };
 
+/**
+ * A wrapper that applies a magnetic pull effect to its children when hovered.
+ * Uses Framer Motion spring physics for smooth return-to-center.
+ */
 const MagneticWrapper = ({ children, strength = 0.5 }: { children: React.ReactNode, strength?: number }) => {
     const ref = useRef<HTMLDivElement>(null);
     const position = { x: useMotionValue(0), y: useMotionValue(0) };
@@ -199,6 +222,10 @@ const MagneticWrapper = ({ children, strength = 0.5 }: { children: React.ReactNo
     );
 };
 
+/**
+ * A visual gutter on the left side simulating a Vim editor.
+ * Shows relative line numbers based on the current scroll position.
+ */
 const VimGutter = () => {
     const [currentLine, setCurrentLine] = useState(0);
     const totalLines = 100;
@@ -228,6 +255,9 @@ const VimGutter = () => {
     );
 };
 
+/**
+ * Standard section header with a magnetic icon and a "decoding" text effect on hover.
+ */
 const SectionHeader = ({ icon: Icon, title, subtitle, className = "mb-12" }: { icon: any, title: string, subtitle: string, className?: string }) => {
     // Decode effect on view
     const [displayTitle, setDisplayTitle] = useState(title);
@@ -271,6 +301,10 @@ const Section = ({ children, className = "", id = "" }: { children?: React.React
     </section>
 );
 
+/**
+ * Text component that scrambles its characters on mount and hover.
+ * Adds a "glitch" aesthetic.
+ */
 const CyberText = ({ text }: { text: string }) => {
     const [displayText, setDisplayText] = useState(text);
     const chars = "X01";
@@ -319,6 +353,10 @@ const CyberText = ({ text }: { text: string }) => {
 
 // --- Updated Components participating in Signal System ---
 
+/**
+ * Represents a specific skill in the coverage dashboard.
+ * Registers itself as a target for the Signal System.
+ */
 const SkillNode = ({ name, level, index }: { name: string; level: number; index: number }) => {
     const bins = 16;
     const filledBins = Math.floor((level / 100) * bins);
@@ -384,6 +422,11 @@ const TimelineItem = ({ year, title, company, description, degree, index }: { ye
 
 // --- Waveform Viewer Component ---
 
+/**
+ * Interactive Waveform Viewer (simulating GTKWave).
+ * Renders digital signals (CLK, RST, BUS) using SVG paths and div blocks.
+ * Supports zooming (visual only) and time cursor navigation.
+ */
 const WaveformViewer = () => {
     const [cursorTime, setCursorTime] = useState<number>(2026.0);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -695,6 +738,15 @@ const SignalPacket: React.FC<SignalPacketProps> = ({ signal, targets, onHit }) =
     );
 };
 
+/**
+ * Main Application Component.
+ * 
+ * Responsibilities:
+ * - Manages global state (tooltip, signals, hits)
+ * - Implements Vim-style keyboard navigation (j, k, G, gg)
+ * - Handles theme switching (silicon/light/default)
+ * - Renders the main sections (Hero, Verification, Coverage, Trace, Terminal)
+ */
 const AppContent = () => {
     const [tooltip, setTooltip] = useState<string | null>(null);
     const [signals, setSignals] = useState<SignalType[]>([]);
