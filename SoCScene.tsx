@@ -24,6 +24,7 @@ declare global {
             boxGeometry: any;
             meshStandardMaterial: any;
             planeGeometry: any;
+            sphereGeometry: any;
             meshBasicMaterial: any;
             fog: any;
             ambientLight: any;
@@ -83,11 +84,9 @@ const IPBlock = ({ position, size, color, label, description, onClick, hoverColo
                 onPointerOver={(e: ThreeEvent<MouseEvent>) => {
                     e.stopPropagation();
                     setHover(true);
-                    document.body.style.cursor = 'pointer';
                 }}
                 onPointerOut={() => {
                     setHover(false);
-                    document.body.style.cursor = 'auto';
                 }}
             >
                 <boxGeometry args={[size[0], size[1], size[2]]} />
@@ -112,6 +111,30 @@ const IPBlock = ({ position, size, color, label, description, onClick, hoverColo
                     </div>
                 </Html>
             )}
+        </group>
+    );
+};
+
+/**
+ * Rotating lights that orbit the chip in dark mode to highlight the pins.
+ * Adds dynamic specular reflections to make details visible in low light.
+ */
+const ActivePinLights = () => {
+    const groupRef = useRef<THREE.Group>(null);
+
+    useFrame((state) => {
+        if (groupRef.current) {
+            groupRef.current.rotation.y -= 0.005;
+            groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+        }
+    });
+
+    return (
+        <group ref={groupRef}>
+            {/* Cyan Light Source */}
+            <pointLight position={[3.2, 0.5, 0]} intensity={3} distance={10} color="#00f3ff" decay={2} />
+            {/* Purple Light Source */}
+            <pointLight position={[-3.2, -0.5, 0]} intensity={3} distance={10} color="#b026ff" decay={2} />
         </group>
     );
 };
@@ -180,7 +203,7 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
                 size={[1.2, 0.2, 1.2]}
                 color={blockColor1}
                 label="AI Network Control"
-                description="Traffic mgmt & control logic for AI clusters."
+                description="Traffic management & control logic for AI clusters."
                 onClick={onBlockSelect}
                 hoverColor={hoverColor}
             />
@@ -198,7 +221,7 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
                 size={[2.8, 0.15, 0.8]}
                 color={blockColor2}
                 label="SerDes & Ethernet"
-                description="COMPHY verification & High-Speed I/O validation."
+                description="COMPHY bringups & High-Speed I/O verification."
                 onClick={onBlockSelect}
                 hoverColor={hoverColor}
             />
@@ -208,6 +231,9 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
                 <planeGeometry args={[3, 3]} />
                 <meshBasicMaterial color={pinColor} wireframe opacity={0.1} transparent />
             </mesh>
+
+            {/* Dynamic Pin Lights (Dark Mode Only) */}
+            {!isLightMode && <ActivePinLights />}
         </group>
     );
 };

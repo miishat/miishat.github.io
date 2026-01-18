@@ -374,6 +374,13 @@
             color: var(--color-electric) !important;
             filter: drop-shadow(0 0 2px var(--color-electric));
         }
+
+        /* Enforce Custom Cursor Only on Desktop */
+        @media (min-width: 768px) {
+            * {
+                cursor: none !important;
+            }
+        }
     </style>
     <!-- Import Map: Defines dependencies for React 19, Framer Motion, and Three.js -->
     <script type="importmap">

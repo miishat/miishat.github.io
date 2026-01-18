@@ -1086,7 +1086,7 @@ const AppContent = () => {
                                     <SkillNode index={0} name="SystemVerilog" level={95} />
                                     <SkillNode index={1} name="UVM Framework" level={90} />
                                     <SkillNode index={2} name="Python / Scripting" level={85} />
-                                    <SkillNode index={3} name="Ethernet / PCIe" level={80} />
+                                    <SkillNode index={3} name="Ethernet / COMPHY" level={80} />
                                     <SkillNode index={4} name="Verdi / DVE" level={88} />
                                     <SkillNode index={5} name="Formal (JasperGold)" level={75} />
                                 </div>
