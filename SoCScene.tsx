@@ -248,6 +248,14 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
  */
 export default function SoCScene({ setTooltip, theme = 'default' }: { setTooltip: (t: string) => void, theme?: string }) {
     const isLightMode = theme === 'light';
+    const [isMobile, setIsMobile] = useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Theme values - Matches CSS variable --color-obsidian (#f0f4f8)
     const fogColor = isLightMode ? '#f0f4f8' : '#050510';
@@ -256,7 +264,7 @@ export default function SoCScene({ setTooltip, theme = 'default' }: { setTooltip
     const pointLightColor2 = isLightMode ? '#6366f1' : '#b026ff';
 
     return (
-        <div className="w-full h-full absolute inset-0 z-0">
+        <div className={`w-full h-full absolute inset-0 z-0 ${isMobile ? 'pointer-events-none' : ''}`}>
             <Canvas camera={{ position: [0, 5, 8], fov: 45 }}>
                 <fog attach="fog" args={[fogColor, 5, 20]} />
                 <ambientLight intensity={ambientInt} />
@@ -273,7 +281,7 @@ export default function SoCScene({ setTooltip, theme = 'default' }: { setTooltip
                 {!isLightMode && (
                     <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
                 )}
-                <OrbitControls enableZoom={false} maxPolarAngle={Math.PI / 2} minPolarAngle={0} />
+                <OrbitControls enableZoom={false} maxPolarAngle={Math.PI / 2} minPolarAngle={0} enabled={!isMobile} />
             </Canvas>
         </div>
     );

@@ -149,6 +149,33 @@ const BootSequence = ({ onComplete }: { onComplete: () => void }) => {
 };
 
 /**
+ * Warning screen for mobile users.
+ */
+const MobileWarning = ({ onProceed }: { onProceed: () => void }) => {
+    return (
+        <div className="fixed inset-0 bg-black z-[60] flex flex-col justify-center items-center p-8 text-center font-mono">
+            <div className="border border-red-500/50 bg-red-900/10 p-8 rounded-lg max-w-md shadow-[0_0_50px_rgba(220,38,38,0.2)]">
+                <div className="text-red-500 text-6xl mb-6 flex justify-center">
+                    <Activity size={64} className="animate-pulse" />
+                </div>
+                <h2 className="text-2xl font-bold text-red-500 mb-4">INCOMPATIBLE DEVICE</h2>
+                <p className="text-gray-300 mb-6 leading-relaxed">
+                    This verification environment is optimized for Desktop and Tablet browsers.
+                    <br /><br />
+                    Mobile viewports may experience signal degradation and layout fragmentation.
+                </p>
+                <button
+                    onClick={onProceed}
+                    className="px-6 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/50 text-red-500 rounded transition-all hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] uppercase text-sm tracking-widest"
+                >
+                    Proceed With Caution
+                </button>
+            </div>
+        </div>
+    );
+};
+
+/**
  * Custom hardware-probe style cursor (crosshair) that replaces the default pointer.
  * Only visible on non-touch devices.
  */
@@ -443,21 +470,21 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
     const isLight = theme === 'light';
     const c = {
         clk: isLight ? "text-green-700" : "text-green-500",
-        clkStroke: isLight ? "#15803d" : "#00ff41", // green-700 vs neon green
+        clkStroke: isLight ? "#15803d" : "#00ff41",
         rst: "text-red-500",
         state: isLight ? "text-yellow-600" : "text-yellow-500",
         stateBorder: isLight ? "border-yellow-600/50" : "border-yellow-500/50",
         stateBg: isLight ? "bg-yellow-600/10" : "bg-yellow-500/10",
         stateText: isLight ? "text-yellow-600/80" : "text-yellow-500/50",
 
-        company: isLight ? "text-blue-700" : "text-electric", // Electric is cyan, usually maps to blue-400/500 style in dark
+        company: isLight ? "text-blue-700" : "text-electric",
         companyBorder: isLight ? "border-blue-700/50" : "border-electric/50",
         companyBg: isLight ? "bg-blue-700/10" : "bg-electric/10",
         companyText: isLight ? "text-blue-700/80" : "text-electric/80",
         companySkew: isLight ? "bg-blue-700/5" : "bg-electric/5",
 
         school: isLight ? "text-sky-600" : "text-blue-400",
-        schoolBorder: isLight ? "border-sky-600/50" : "border-blue-500/50", // was blue-500 in original
+        schoolBorder: isLight ? "border-sky-600/50" : "border-blue-500/50",
         schoolBg: isLight ? "bg-sky-600/10" : "bg-blue-500/10",
         schoolText: isLight ? "text-sky-600/80" : "text-blue-400/80",
         schoolSkew: isLight ? "bg-sky-600/5" : "bg-blue-500/5",
@@ -475,7 +502,9 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
 
         eduRole: isLight ? "text-gray-600" : "text-gray-300",
         eduBorder: isLight ? "border-gray-500/50" : "border-gray-600/30",
-        eduBg: isLight ? "bg-gray-800" : "bg-gray-700"
+        eduBg: isLight ? "bg-gray-800" : "bg-gray-700",
+
+        gridText: isLight ? "text-gray-600" : "text-gray-400"
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
@@ -515,8 +544,8 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
 
             <div className="flex h-[500px]">
                 {/* Signals List (Sidebar) */}
-                <div className="w-56 md:w-80 bg-black border-r border-gray-800 flex flex-col shrink-0">
-                    <div className="h-10 border-b border-gray-800 flex items-center px-2 text-gray-500 bg-gray-900/50">Signals</div>
+                <div className="w-56 md:w-80 bg-black border-r border-gray-800 flex flex-col shrink-0 overflow-hidden">
+                    <div className="h-10 border-b border-gray-800 flex items-center px-2 text-gray-500 bg-gray-900/50 shrink-0">Signals</div>
                     <SignalRow name="sys_clk" color={c.clk} value="1" />
                     <SignalRow name="rst_n" color={c.rst} value="1" />
                     <SignalRow name="state[3:0]" color={c.state} value={activeData.stateCode} />
@@ -527,7 +556,7 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
 
                     {/* Active Transaction Detail Panel (in sidebar for mobile, or distinct area) */}
                     {/* Active Transaction Detail Panel */}
-                    <div className="p-4 bg-gray-900/20 h-48 flex flex-col justify-start">
+                    <div className="p-4 bg-gray-900/20 h-48 flex flex-col justify-start shrink-0">
                         <div className="text-gray-500 mb-1 text-[10px] uppercase tracking-wider">Transaction Detail</div>
                         <div className={`${c.role} font-bold mb-0.5 truncate`}>{activeData.title}</div>
                         <div className={`${c.company} mb-0.5 truncate`}>{activeData.company}</div>
@@ -546,7 +575,7 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
                     <div className="absolute inset-0 flex">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <div key={i} className="flex-1 border-r border-white/5 h-full relative">
-                                <span className="absolute bottom-1 right-1 text-gray-700 text-[10px] opacity-70">{startYear + i + 1}</span>
+                                <span className={`absolute bottom-1 right-1 text-[10px] opacity-70 ${c.gridText}`}>{startYear + i + 1}</span>
                             </div>
                         ))}
                     </div>
@@ -562,7 +591,10 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
                     </div>
 
                     {/* Signals Rendering - Matches Sidebar Height h-10 */}
-                    <div className="pt-10 flex flex-col gap-0">
+                    <div className="flex flex-col gap-0">
+                        {/* Spacer to align with Sidebar "Signals" header */}
+                        <div className="h-10 border-b border-white/5 w-full bg-gray-900/20" />
+
                         {/* CLK */}
                         <div className="h-10 relative border-b border-white/5 w-full">
                             <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 24">
@@ -660,7 +692,7 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
 };
 
 const SignalRow = ({ name, color, value, isBus = false }: { name: string, color: string, value: string, isBus?: boolean }) => (
-    <div className="h-10 border-b border-gray-800 flex items-center px-4 justify-between text-[10px] md:text-xs hover:bg-gray-900 transition-colors">
+    <div className="h-10 border-b border-gray-800 flex items-center px-4 justify-between text-[10px] md:text-xs hover:bg-gray-900 transition-colors shrink-0">
         <span className={`${color} font-mono`}>{name}</span>
         <span className={`text-gray-400 font-mono ${isBus ? 'bg-gray-800 px-1 rounded' : ''}`}>
             {isBus ? `= ${value}` : value}
@@ -793,6 +825,14 @@ const AppContent = () => {
     const [bootComplete, setBootComplete] = useState(false);
     const [viewMode, setViewMode] = useState<'log' | 'wave'>('log');
     const [theme, setTheme] = useState<'default' | 'silicon' | 'light'>('default');
+    const [showMobileWarning, setShowMobileWarning] = useState(false);
+
+    useEffect(() => {
+        // Simple check for mobile width
+        if (window.innerWidth < 768) {
+            setShowMobileWarning(true);
+        }
+    }, []);
 
     // Registry refs
     const targets = useRef<TargetRegistry>({ skills: [], trace: [] });
@@ -899,7 +939,17 @@ const AppContent = () => {
     return (
         <SignalContext.Provider value={{ registerTarget, emitSignal, hitTarget, activeHits }}>
             <AnimatePresence>
-                {!bootComplete && (
+                {showMobileWarning && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100]"
+                    >
+                        <MobileWarning onProceed={() => setShowMobileWarning(false)} />
+                    </motion.div>
+                )}
+                {!bootComplete && !showMobileWarning && (
                     <motion.div exit={{ opacity: 0 }} transition={{ duration: 1 }}>
                         <BootSequence onComplete={() => setBootComplete(true)} />
                     </motion.div>
@@ -1012,12 +1062,15 @@ const AppContent = () => {
                                     <span className="text-pcbgold font-bold"> UVM-based environments </span>
                                     that stress-test SoCs beyond their limits, ensuring functional perfection before tape-out.
                                 </p>
-                                <div className="flex gap-4 mt-8">
+                                <div className="flex flex-wrap gap-4 mt-8">
                                     <div className="bg-gray-900/50 px-4 py-2 rounded border border-gray-800 text-xs font-mono text-gray-400">
                                         <span className="text-success">✔</span> AI Chips & SerDes
                                     </div>
                                     <div className="bg-gray-900/50 px-4 py-2 rounded border border-gray-800 text-xs font-mono text-gray-400">
                                         <span className="text-pcbgold">★</span> 100% Coverage
+                                    </div>
+                                    <div className="bg-gray-900/50 px-4 py-2 rounded border border-gray-800 text-xs font-mono text-gray-400">
+                                        <span className="text-electric">⚡</span> Zero Bugs
                                     </div>
                                 </div>
                             </div>
