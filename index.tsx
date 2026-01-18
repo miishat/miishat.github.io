@@ -9,8 +9,8 @@ import React, { useState, useRef, useEffect, createContext, useContext, useMemo,
 import { createRoot } from 'react-dom/client';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence, useSpring, useTransform, useMotionValue } from 'framer-motion';
 import { Cpu, Zap, Layers, Activity, ChevronDown, CheckCircle2, GitBranch, Terminal as TerminalIcon, Shield, FileCode, Dices, Network, ArrowRightLeft, Play, List, MousePointer2 } from 'lucide-react';
-import SoCScene from './SoCScene';
-import Terminal from './Terminal';
+import SoCScene from './SoCScene.tsx';
+import Terminal from './TerminalComponent.tsx';
 
 // --- Signal System Context & Types ---
 
@@ -22,8 +22,8 @@ type SignalType = {
 };
 
 type TargetRegistry = {
-    skills: React.RefObject<HTMLDivElement>[];
-    trace: React.RefObject<HTMLDivElement>[];
+    skills: React.RefObject<HTMLDivElement | null>[];
+    trace: React.RefObject<HTMLDivElement | null>[];
 };
 
 /**
@@ -31,7 +31,7 @@ type TargetRegistry = {
  * Allows components to register their position and emit/receive signal packets (particles).
  */
 const SignalContext = createContext<{
-    registerTarget: (type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement>) => void;
+    registerTarget: (type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement | null>) => void;
     emitSignal: (rect: DOMRect, color: string) => void;
     hitTarget: (id: string) => void;
     activeHits: Set<string>;
@@ -672,7 +672,7 @@ const SignalPacket: React.FC<SignalPacketProps> = ({ signal, targets, onHit }) =
     const traceTarget = useMemo(() => targets.trace[Math.floor(Math.random() * targets.trace.length)], []);
 
     // Calculate positions relative to the entire document
-    const getPos = (ref: React.RefObject<HTMLDivElement> | undefined) => {
+    const getPos = (ref: React.RefObject<HTMLDivElement | null> | undefined) => {
         if (!ref || !ref.current) return { x: 0, y: 0 };
         const rect = ref.current.getBoundingClientRect();
         return {
@@ -758,7 +758,7 @@ const AppContent = () => {
     // Registry refs
     const targets = useRef<TargetRegistry>({ skills: [], trace: [] });
 
-    const registerTarget = (type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement>) => {
+    const registerTarget = (type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement | null>) => {
         if (!targets.current[type].includes(ref)) {
             targets.current[type].push(ref);
         }
@@ -912,7 +912,7 @@ const AppContent = () => {
 
                                 <CyberText text="MISHAT" />
 
-                                <p className="text-xl md:text-2xl text-gray-300 font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap">
+                                <p className={`text-gray-300 font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap ${theme === 'silicon' ? 'text-sm md:text-base tracking-widest' : 'text-xl md:text-2xl'}`}>
                                     Senior Design Verification Engineer <span className="text-pcbgold font-medium">@ Marvell Technology</span>
                                 </p>
 
