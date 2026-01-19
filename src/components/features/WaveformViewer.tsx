@@ -9,6 +9,22 @@
 import React, { useState, useRef } from 'react';
 import { TRACE_DATA } from '../../data/traceData';
 
+// Month names for formatting
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Formats a decimal year to a readable month/year string.
+ * @param decimalYear - Year as decimal (e.g., 2025.5 for June 2025)
+ * @returns Formatted string (e.g., "June 2025")
+ */
+const formatDecimalYear = (decimalYear: number): string => {
+    const year = Math.floor(decimalYear);
+    const monthDecimal = (decimalYear - year) * 12;
+    const monthIndex = Math.round(monthDecimal) - 1;
+    const safeMonthIndex = Math.max(0, Math.min(11, monthIndex < 0 ? 0 : monthIndex));
+    return `${MONTH_NAMES[safeMonthIndex]} ${year}`;
+};
+
 // Helper component for SignalRow
 const SignalRow = ({ name, color, value, isBus = false }: { name: string, color: string, value: string, isBus?: boolean }) => (
     <div className="h-10 border-b border-gray-800 flex items-center px-4 justify-between text-[10px] md:text-xs hover:bg-gray-900 transition-colors shrink-0">
@@ -105,7 +121,7 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
             <div className="bg-gray-800 p-2 flex justify-between items-center border-b border-gray-700">
                 <div className="flex gap-4">
                     <span className="text-electric font-bold">GTKWave v3.3.104</span>
-                    <span className="text-gray-400">Cursor: {cursorTime.toFixed(2)} YR</span>
+                    <span className="text-gray-400">Cursor: {formatDecimalYear(cursorTime)}</span>
                 </div>
                 <div className="flex gap-2">
                     <div className="px-2 py-0.5 bg-black rounded text-green-400 border border-green-900">ZOOM: 100%</div>
@@ -140,13 +156,22 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
                     className="flex-1 bg-obsidian relative overflow-hidden cursor-crosshair group"
                     onMouseMove={handleMouseMove}
                 >
-                    {/* Grid Lines */}
-                    <div className="absolute inset-0 flex">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="flex-1 border-r border-white/5 h-full relative">
-                                <span className={`absolute bottom-1 right-1 text-[10px] opacity-70 ${c.gridText}`}>{startYear + i + 1}</span>
-                            </div>
-                        ))}
+                    {/* Grid Lines - positioned at exact year boundaries */}
+                    <div className="absolute inset-0">
+                        {Array.from({ length: duration }).map((_, i) => {
+                            const year = startYear + i + 1;
+                            return (
+                                <div
+                                    key={i}
+                                    className="absolute top-0 bottom-0 border-r border-white/5"
+                                    style={{ left: getX(year) }}
+                                >
+                                    <span className={`absolute bottom-1 left-1 text-[10px] opacity-70 ${c.gridText}`}>
+                                        {year}
+                                    </span>
+                                </div>
+                            );
+                        })}
                     </div>
 
                     {/* Cursor Line */}
@@ -154,8 +179,8 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
                         className="absolute top-0 bottom-0 w-px bg-yellow-500 z-20 pointer-events-none group-hover:opacity-100 opacity-50"
                         style={{ left: getX(cursorTime) }}
                     >
-                        <div className="absolute -top-4 -left-8 bg-yellow-500 text-black px-1 rounded text-[10px] whitespace-nowrap">
-                            t = {cursorTime.toFixed(2)}
+                        <div className="absolute -top-4 -left-10 bg-yellow-500 text-black px-1 rounded text-[10px] whitespace-nowrap">
+                            t = {formatDecimalYear(cursorTime)}
                         </div>
                     </div>
 

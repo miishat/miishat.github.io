@@ -18,6 +18,7 @@ import { TRACE_DATA } from './src/data/traceData';
 import CustomCursor from './src/components/ui/CustomCursor';
 import CyberText from './src/components/ui/CyberText';
 import MagneticWrapper from './src/components/ui/MagneticWrapper';
+import ChipLoader from './src/components/ui/ChipLoader';
 import SectionHeader from './src/components/ui/SectionHeader';
 
 // --- Layout Components ---
@@ -38,6 +39,41 @@ import Terminal from './src/components/features/Terminal';
 
 // Lazy Load the heavy 3D Scene
 const SoCScene = React.lazy(() => import('./src/components/features/SoCScene'));
+
+/**
+ * Converts a decimal year to a formatted month/year string.
+ * @param decimalYear - Year as decimal (e.g., 2025.41 for May 2025)
+ * @param isPresent - If true, returns "Present" instead of the date
+ * @returns Formatted date string (e.g., "May 2025")
+ */
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+const formatDecimalYear = (decimalYear: number, isPresent = false): string => {
+    if (isPresent) return 'Present';
+    const year = Math.floor(decimalYear);
+    const monthDecimal = (decimalYear - year) * 12;
+    const monthIndex = Math.round(monthDecimal) - 1;
+    // Clamp to valid month range
+    const safeMonthIndex = Math.max(0, Math.min(11, monthIndex < 0 ? 0 : monthIndex));
+    return `${MONTH_NAMES[safeMonthIndex]} ${year}`;
+};
+
+/**
+ * Formats a date range from trace data entry.
+ * @param start - Start decimal year
+ * @param end - End decimal year
+ * @returns Formatted date range (e.g., "May 2025 - Present")
+ */
+const formatDateRange = (start: number, end: number): string => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1; // 1-indexed
+    const currentDecimal = currentYear + (currentMonth / 12);
+
+    // If end date is close to or beyond current date, show "Present"
+    const isPresent = end >= currentDecimal - 0.1;
+
+    return `${formatDecimalYear(start)} - ${formatDecimalYear(end, isPresent)}`;
+};
 
 /**
  * Main Application Component.
@@ -215,7 +251,7 @@ const AppContent = () => {
                                 WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
                             }}
                         >
-                            <React.Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-electric font-mono text-xs animate-pulse">INITIALIZING 3D KERNEL...</div>}>
+                            <React.Suspense fallback={<ChipLoader />}>
                                 <SoCScene setTooltip={setTooltip} theme={theme} />
                             </React.Suspense>
                         </div>
@@ -419,7 +455,7 @@ const AppContent = () => {
                                         <TimelineItem
                                             key={item.id}
                                             index={i}
-                                            year={item.start === 2025.41 ? "May 2025 - Present" : (item.id === 1 ? "June 2023 - May 2025" : (item.id === 2 ? "Sept 2022 - Mar 2023" : "Sept 2017 - April 2023"))}
+                                            year={formatDateRange(item.start, item.end)}
                                             title={item.title}
                                             company={item.company || item.school}
                                             degree={item.degree}

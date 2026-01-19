@@ -27,8 +27,8 @@ export const TRACE_DATA = [
     },
     {
         id: 1,
-        start: 2023.41, // June 2023
-        end: 2025.41,   // May 2025
+        start: 2023.5,  // June 2023
+        end: 2025.42,   // May 2025
         title: "Design Verification Engineer",
         company: "Marvell Technology",
         school: "",
@@ -39,8 +39,8 @@ export const TRACE_DATA = [
     },
     {
         id: 2,
-        start: 2022.66, // Sept 2022
-        end: 2023.16,   // Mar 2023
+        start: 2022.75, // Sept 2022
+        end: 2023.25,   // March 2023
         title: "Design Verification Engineer Intern",
         company: "Marvell Technology",
         school: "",
@@ -51,8 +51,8 @@ export const TRACE_DATA = [
     },
     {
         id: 3,
-        start: 2017.66, // Sept 2017
-        end: 2023.25,    // April 2023
+        start: 2017.75, // Sept 2017
+        end: 2023.33,   // April 2023
         title: "Engineering Student",
         company: "",
         school: "Memorial University of Newfoundland",
