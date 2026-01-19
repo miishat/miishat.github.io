@@ -2,6 +2,7 @@
  * @file ChipLoader.tsx
  * @description A premium animated chip loader for the 3D scene loading state.
  * Features an animated chip outline with scanning effects and pulsing pins.
+ * @author Mishat
  */
 import React from 'react';
 import { motion } from 'framer-motion';

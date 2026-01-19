@@ -20,6 +20,7 @@ import CyberText from './src/components/ui/CyberText';
 import MagneticWrapper from './src/components/ui/MagneticWrapper';
 import ChipLoader from './src/components/ui/ChipLoader';
 import SectionHeader from './src/components/ui/SectionHeader';
+import VimCommandPalette from './src/components/ui/VimCommandPalette';
 
 // --- Layout Components ---
 import Section from './src/components/layout/Section';
@@ -92,6 +93,7 @@ const AppContent = () => {
     const [viewMode, setViewMode] = useState<'log' | 'wave'>('log');
     const [theme, setTheme] = useState<'default' | 'silicon' | 'light'>('default');
     const [showMobileWarning, setShowMobileWarning] = useState(false);
+    const [showCommandPalette, setShowCommandPalette] = useState(false);
 
     useEffect(() => {
         // Simple check for mobile width
@@ -149,6 +151,10 @@ const AppContent = () => {
             const now = Date.now();
 
             switch (e.key) {
+                case ':':
+                    e.preventDefault();
+                    setShowCommandPalette(true);
+                    break;
                 case 'j':
                     window.scrollBy({ top: 300, behavior: 'smooth' });
                     break;
@@ -295,7 +301,7 @@ const AppContent = () => {
                                     transition={{ duration: 1 }}
                                     className="mt-8 text-[10px] text-gray-400 font-mono"
                                 >
-                                    Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump
+                                    Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
                                 </motion.div>
 
                             </motion.div>
@@ -486,6 +492,13 @@ const AppContent = () => {
                             © {new Date().getFullYear()} Mishat. Designed inside the silicon.
                         </footer>
                     </Section>
+
+                    {/* Vim Command Palette */}
+                    <VimCommandPalette
+                        isOpen={showCommandPalette}
+                        onClose={() => setShowCommandPalette(false)}
+                        onThemeChange={setTheme}
+                    />
                 </motion.div>
             )}
         </SignalContext.Provider>
