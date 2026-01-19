@@ -234,7 +234,7 @@ const AppContent = () => {
 
                                 <CyberText text="MISHAT" />
 
-                                <p className={`font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap ${theme === 'silicon' ? 'text-gray-300 text-sm md:text-base tracking-widest' : 'text-gray-600 text-lg md:text-xl font-medium'}`}>
+                                <p className={`font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap ${theme === 'silicon' ? 'text-gray-400 text-sm md:text-base tracking-widest' : 'text-gray-400 text-lg md:text-xl font-medium'}`}>
                                     Senior Design Verification Engineer <span className="text-pcbgold font-bold">@ Marvell Technology</span>
                                 </p>
 
@@ -255,9 +255,9 @@ const AppContent = () => {
 
                                 <motion.div
                                     initial={{ opacity: 0 }}
-                                    animate={{ opacity: 0.5 }}
-                                    transition={{ delay: 2 }}
-                                    className="mt-8 text-[10px] text-gray-700 font-mono"
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 1 }}
+                                    className="mt-8 text-[10px] text-gray-400 font-mono"
                                 >
                                     Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump
                                 </motion.div>
