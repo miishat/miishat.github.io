@@ -21,7 +21,7 @@ export const TRACE_DATA = [
         company: "Marvell Technology",
         school: "",
         degree: "",
-        description: "Leading advanced verification strategies for next-generation silicon. Specializing in AI Network Control and COMPHY (SerDes). Architecting reusable UVM components and overseeing full-chip regression sign-off.",
+        description: "Leading advanced verification strategies for next-generation silicon. Specializing in AI Network Control and COMPHY (SerDes). Architecting reusable UVM components and overseeing block-level regression sign-off.",
         type: "WORK",
         stateCode: "4'h3"
     },
