@@ -35,6 +35,9 @@ const SignalRow = ({ name, color, value, isBus = false }: { name: string, color:
     </div>
 );
 
+// Pre-sort trace data to avoid sorting on every render
+const SORTED_TRACE_DATA = [...TRACE_DATA].sort((a, b) => a.type === 'EDU' ? -1 : 1);
+
 /**
  * Interactive Waveform Viewer (simulating GTKWave).
  * Renders digital signals (CLK, RST, BUS) using SVG paths and div blocks.
@@ -265,7 +268,7 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
                         {/* ROLE BUS */}
                         <div className="h-10 relative border-b border-white/5 w-full">
                             {/* Render Work/Intern items last to be on top */}
-                            {TRACE_DATA.slice().sort((a, b) => a.type === 'EDU' ? -1 : 1).map((d, i) => (
+                            {SORTED_TRACE_DATA.map((d, i) => (
                                 <div
                                     key={i}
                                     className={`absolute h-6 top-2 border bg-opacity-10 flex items-center justify-center overflow-hidden px-1 ${d.type === 'EDU' ? `${c.eduBorder} ${c.eduBg} z-0` : `${c.roleBorder} ${c.roleBg} z-10`}`}
