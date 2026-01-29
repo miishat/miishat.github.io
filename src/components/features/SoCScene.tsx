@@ -140,6 +140,22 @@ const ActivePinLights = () => {
 };
 
 /**
+ * Pre-calculated pin positions to avoid recalculation on every render.
+ * Static array creation outside the component reduces GC pressure.
+ */
+const PINS = Array.from({ length: 40 }).map((_, i) => {
+    const side = Math.floor(i / 10); // 0, 1, 2, 3
+    const offset = (i % 10) * 0.5 - 2.25;
+    let pos: [number, number, number] = [0, -0.2, 0];
+    if (side === 0) pos = [offset, -0.2, 2.6];
+    if (side === 1) pos = [offset, -0.2, -2.6];
+    if (side === 2) pos = [2.6, -0.2, offset];
+    if (side === 3) pos = [-2.6, -0.2, offset];
+
+    return { key: i, position: new THREE.Vector3(...pos) };
+});
+
+/**
  * The main Processor Chip assembly.
  * Composed of:
  * - Substrate (Base layer)
@@ -180,22 +196,12 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
             </mesh>
 
             {/* Pins */}
-            {Array.from({ length: 40 }).map((_, i) => {
-                const side = Math.floor(i / 10); // 0, 1, 2, 3
-                const offset = (i % 10) * 0.5 - 2.25;
-                let pos: [number, number, number] = [0, -0.2, 0];
-                if (side === 0) pos = [offset, -0.2, 2.6];
-                if (side === 1) pos = [offset, -0.2, -2.6];
-                if (side === 2) pos = [2.6, -0.2, offset];
-                if (side === 3) pos = [-2.6, -0.2, offset];
-
-                return (
-                    <mesh key={i} position={new THREE.Vector3(...pos)}>
-                        <boxGeometry args={[0.1, 0.1, 0.4]} />
-                        <meshStandardMaterial color={pinColor} metalness={1} roughness={0.3} />
-                    </mesh>
-                );
-            })}
+            {PINS.map((pin) => (
+                <mesh key={pin.key} position={pin.position}>
+                    <boxGeometry args={[0.1, 0.1, 0.4]} />
+                    <meshStandardMaterial color={pinColor} metalness={1} roughness={0.3} />
+                </mesh>
+            ))}
 
             {/* IP Blocks */}
             <IPBlock
