@@ -5,7 +5,7 @@
  * 
  * @author Mishat
  */
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cpu, Zap, Layers, Activity, ChevronDown, Dices, Network, ArrowRightLeft, Play, List, Shield } from 'lucide-react';
@@ -106,13 +106,13 @@ const AppContent = () => {
     const targets = useRef<TargetRegistry>({ skills: [], trace: [] });
 
     // Helper functions for Context
-    const registerTarget = (type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement | null>) => {
+    const registerTarget = useCallback((type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement | null>) => {
         if (!targets.current[type].includes(ref)) {
             targets.current[type].push(ref);
         }
-    };
+    }, []);
 
-    const emitSignal = (rect: DOMRect, color: string) => {
+    const emitSignal = useCallback((rect: DOMRect, color: string) => {
         const id = Math.random().toString(36).substr(2, 9);
         const startX = rect.left + rect.width / 2;
         const startY = rect.top + rect.height / 2;
@@ -122,9 +122,9 @@ const AppContent = () => {
         setTimeout(() => {
             setSignals(prev => prev.filter(s => s.id !== id));
         }, 2500);
-    };
+    }, []);
 
-    const hitTarget = (id: string) => {
+    const hitTarget = useCallback((id: string) => {
         setActiveHits(prev => {
             const newSet = new Set(prev);
             newSet.add(id);
@@ -137,7 +137,7 @@ const AppContent = () => {
                 return newSet;
             });
         }, 500);
-    };
+    }, []);
 
     // Vim Navigation Logic
     useEffect(() => {
@@ -209,8 +209,15 @@ const AppContent = () => {
         }
     }, [theme]);
 
+    const signalContextValue = useMemo(() => ({
+        registerTarget,
+        emitSignal,
+        hitTarget,
+        activeHits
+    }), [registerTarget, emitSignal, hitTarget, activeHits]);
+
     return (
-        <SignalContext.Provider value={{ registerTarget, emitSignal, hitTarget, activeHits }}>
+        <SignalContext.Provider value={signalContextValue}>
             <AnimatePresence>
                 {showMobileWarning && (
                     <motion.div
