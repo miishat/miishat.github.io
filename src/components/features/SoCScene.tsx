@@ -5,7 +5,7 @@
  * 
  * @author Mishat
  */
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Text, Float, Html, Stars } from '@react-three/drei';
 import * as THREE from 'three';
@@ -73,8 +73,10 @@ const IPBlock = ({ position, size, color, label, description, onClick, hoverColo
         }
     });
 
+    const vectorPosition = useMemo(() => new THREE.Vector3(...position), [position]);
+
     return (
-        <group position={new THREE.Vector3(...position)}>
+        <group position={vectorPosition}>
             <mesh
                 ref={mesh}
                 onClick={(e: ThreeEvent<MouseEvent>) => {
