@@ -38,6 +38,15 @@ const SignalRow = ({ name, color, value, isBus = false }: { name: string, color:
 // Pre-sort trace data to avoid sorting on every render
 const SORTED_TRACE_DATA = [...TRACE_DATA].sort((a, b) => a.type === 'EDU' ? -1 : 1);
 
+// Generate Clock Pulses
+const clockCycles = 50;
+const clockPath = `M 0 10 ` + Array.from({ length: clockCycles }).map((_, i) => {
+    const x1 = (i / clockCycles) * 100;
+    const x2 = ((i + 0.5) / clockCycles) * 100;
+    const x3 = ((i + 1) / clockCycles) * 100;
+    return `L ${x1} 0 L ${x2} 0 L ${x2} 24 L ${x3} 24`;
+}).join(" ");
+
 /**
  * Interactive Waveform Viewer (simulating GTKWave).
  * Renders digital signals (CLK, RST, BUS) using SVG paths and div blocks.
@@ -108,15 +117,6 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
     const getX = (year: number) => {
         return `${((year - startYear) / duration) * 100}%`;
     };
-
-    // Generate Clock Pulses
-    const clockCycles = 50;
-    const clockPath = `M 0 10 ` + Array.from({ length: clockCycles }).map((_, i) => {
-        const x1 = (i / clockCycles) * 100;
-        const x2 = ((i + 0.5) / clockCycles) * 100;
-        const x3 = ((i + 1) / clockCycles) * 100;
-        return `L ${x1} 0 L ${x2} 0 L ${x2} 24 L ${x3} 24`;
-    }).join(" ");
 
     return (
         <div className="w-full bg-gray-900 border border-gray-800 rounded-lg overflow-hidden flex flex-col font-mono text-xs select-none shadow-2xl">
