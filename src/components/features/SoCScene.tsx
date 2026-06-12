@@ -273,7 +273,7 @@ export default function SoCScene({ setTooltip, theme = 'default' }: { setTooltip
 
     return (
         <div className={`w-full h-full absolute inset-0 z-0 ${isMobile ? 'pointer-events-none' : ''}`}>
-            <Canvas camera={{ position: [0, 5, 8], fov: 45 }}>
+            <Canvas camera={{ position: [0, 5, 8], fov: 45 }} dpr={Math.min(window.devicePixelRatio, 2)}>
                 <fog attach="fog" args={[fogColor, 5, 20]} />
                 <ambientLight intensity={ambientInt} />
                 <pointLight position={[10, 10, 10]} intensity={1} color={pointLightColor1} />

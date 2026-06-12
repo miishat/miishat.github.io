@@ -21,6 +21,7 @@ import MagneticWrapper from './src/components/ui/MagneticWrapper';
 import ChipLoader from './src/components/ui/ChipLoader';
 import SectionHeader from './src/components/ui/SectionHeader';
 import VimCommandPalette from './src/components/ui/VimCommandPalette';
+import ConstructionTape from './src/components/ui/ConstructionTape';
 
 // --- Layout Components ---
 import Section from './src/components/layout/Section';
@@ -32,11 +33,11 @@ import MobileWarning from './src/components/features/MobileWarning';
 import MethodologyCard from './src/components/features/MethodologyCard';
 import SkillNode from './src/components/features/SkillNode';
 import TimelineItem from './src/components/features/TimelineItem';
-import WaveformViewer from './src/components/features/WaveformViewer';
 import SignalPacket from './src/components/features/SignalPacket';
 
-// --- Legacy / Moved Components ---
-import Terminal from './src/components/features/Terminal';
+// --- Lazy Loaded Components ---
+const WaveformViewer = React.lazy(() => import('./src/components/features/WaveformViewer'));
+const Terminal = React.lazy(() => import('./src/components/features/Terminal'));
 
 // Lazy Load the heavy 3D Scene
 const SoCScene = React.lazy(() => import('./src/components/features/SoCScene'));
@@ -91,7 +92,12 @@ const AppContent = () => {
     const [activeHits, setActiveHits] = useState<Set<string>>(new Set());
     const [bootComplete, setBootComplete] = useState(false);
     const [viewMode, setViewMode] = useState<'log' | 'wave'>('log');
-    const [theme, setTheme] = useState<'default' | 'silicon' | 'light'>('default');
+    const [theme, setTheme] = useState<'default' | 'silicon' | 'light'>(() => {
+        if (typeof window !== 'undefined') {
+            return (localStorage.getItem('portfolio-theme') as 'default' | 'silicon' | 'light') || 'default';
+        }
+        return 'default';
+    });
     const [showMobileWarning, setShowMobileWarning] = useState(false);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
 
@@ -201,6 +207,7 @@ const AppContent = () => {
 
     // Theme Effect
     useEffect(() => {
+        localStorage.setItem('portfolio-theme', theme);
         document.body.classList.remove('theme-silicon', 'theme-light');
         if (theme === 'silicon') {
             document.body.classList.add('theme-silicon');
@@ -234,6 +241,9 @@ const AppContent = () => {
                         <BootSequence onComplete={() => setBootComplete(true)} />
                     </motion.div>
                 )}
+                {bootComplete && theme === 'light' && (
+                    <ConstructionTape key="construction-tape" />
+                )}
             </AnimatePresence>
 
             {bootComplete && (
@@ -256,7 +266,7 @@ const AppContent = () => {
                     <VimGutter />
 
                     {/* Hero Section */}
-                    <Section className="h-screen overflow-hidden relative !pl-8 lg:!pl-8" id="top">
+                    <Section as="header" className="h-screen overflow-hidden relative !pl-8 lg:!pl-8" id="top">
                         <div
                             className="absolute inset-0 z-0"
                             style={{
@@ -326,8 +336,9 @@ const AppContent = () => {
                         </motion.div>
                     </Section>
 
-                    {/* Verification Logic Section */}
-                    <Section className="relative overflow-hidden py-32" id="verification">
+                    <main>
+                        {/* Verification Logic Section */}
+                        <Section className="relative overflow-hidden py-32" id="verification">
 
                         <div className="grid lg:grid-cols-12 gap-12 max-w-7xl w-full items-start z-10 relative">
 
@@ -481,18 +492,23 @@ const AppContent = () => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                 >
-                                    <WaveformViewer theme={theme} />
+                                    <React.Suspense fallback={<div className="h-64 flex items-center justify-center text-electric font-mono text-sm">LOADING_WAVEFORMS...</div>}>
+                                        <WaveformViewer theme={theme} />
+                                    </React.Suspense>
                                 </motion.div>
                             )}
                         </div>
                     </Section>
+                    </main>
 
                     {/* Terminal / Footer */}
-                    <Section className="pb-20 bg-gradient-to-t from-black to-obsidian !pl-8 lg:!pl-8" id="terminal">
+                    <Section as="footer" className="pb-20 bg-gradient-to-t from-black to-obsidian !pl-8 lg:!pl-8" id="terminal">
                         <div className="max-w-4xl w-full z-10 text-center mb-12">
                             <h2 className="text-3xl font-bold mb-4">Run Simulation</h2>
                             <p className="text-gray-400 mb-8">Access my contact info, download my resume, change themes, and more.</p>
-                            <Terminal onThemeChange={setTheme} />
+                            <React.Suspense fallback={<div className="h-96 flex items-center justify-center text-electric font-mono text-sm">BOOTING_TERMINAL...</div>}>
+                                <Terminal onThemeChange={setTheme} />
+                            </React.Suspense>
                         </div>
 
                         <footer className="absolute bottom-8 md:bottom-12 text-gray-600 text-sm font-mono">

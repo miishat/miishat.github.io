@@ -8,13 +8,19 @@
     <title>Mishat | Senior Design Verification Engineer</title>
     <meta name="description"
         content="Mishat Hassan – Senior Design Verification Engineer specializing in UVM, SystemVerilog, SoC Validation, and ASIC verification. Explore my portfolio of hardware verification projects and technical expertise." />
-
+    <!-- Open Graph / Social Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Mishat | Senior Design Verification Engineer" />
+    <meta property="og:description" content="Mishat Hassan – Senior Design Verification Engineer specializing in UVM, SystemVerilog, SoC Validation, and ASIC verification." />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Typography: Preconnects & Google Fonts (Inter + JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
@@ -405,6 +411,16 @@
 </head>
 
 <body>
+    <!-- Theme Initialization (Prevents FOUC) -->
+    <script>
+        (function() {
+            try {
+                var theme = localStorage.getItem('portfolio-theme');
+                if (theme === 'light') { document.body.classList.add('theme-light'); }
+                else if (theme === 'silicon') { document.body.classList.add('theme-silicon'); }
+            } catch (e) {}
+        })();
+    </script>
     <!-- React Application Mount Point -->
     <div id="root"></div>
     <!-- Application Entry Script -->
