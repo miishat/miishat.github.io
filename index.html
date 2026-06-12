@@ -20,9 +20,9 @@
     <!-- Typography: Preconnects & Google Fonts (Inter + JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap">
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap"
         rel="stylesheet">
 
     <!-- Tailwind CSS: Runtime Configuration & Custom Design Tokens -->
@@ -57,6 +57,7 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
+                        display: ['Space Grotesk', 'sans-serif'],
                     },
                     backgroundImage: {
                         'grid-pattern': "linear-gradient(to right, var(--color-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px)",
@@ -75,14 +76,14 @@
             --color-white: 255 255 255;
 
             /* Obsidian Theme (Dark Mode Default) */
-            --color-obsidian: #050510;
+            --color-obsidian: #030308;
             --color-electric: #00f3ff;
-            --color-deepblue: #0a0a1f;
+            --color-deepblue: #080816;
             --color-neonpurple: #b026ff;
             --color-pcbgold: #d4af37;
             --color-success: #00ff41;
 
-            --color-grid: #1f1f3a;
+            --color-grid: #13132b;
 
             /* Standard Gray Scale */
             --color-gray-100: #f3f4f6;

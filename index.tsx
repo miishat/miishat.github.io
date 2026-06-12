@@ -9,6 +9,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMe
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cpu, Zap, Layers, Activity, ChevronDown, Dices, Network, ArrowRightLeft, Play, List, Shield } from 'lucide-react';
+import Lenis from 'lenis';
 
 // --- Context & Data ---
 import { SignalContext, SignalType, TargetRegistry } from './src/context/SignalContext';
@@ -106,6 +107,15 @@ const AppContent = () => {
         if (window.innerWidth < 768) {
             setShowMobileWarning(true);
         }
+    }, []);
+
+    // Lenis Smooth Scrolling
+    useEffect(() => {
+        const lenis = new Lenis({
+            autoRaf: true,
+            duration: 1.2,
+        });
+        return () => lenis.destroy();
     }, []);
 
     // Registry refs
@@ -338,7 +348,7 @@ const AppContent = () => {
 
                     <main>
                         {/* Verification Logic Section */}
-                        <Section className="relative overflow-hidden py-32" id="verification">
+                        <Section className="relative overflow-hidden py-28" id="verification">
 
                         <div className="grid lg:grid-cols-12 gap-12 max-w-7xl w-full items-start z-10 relative">
 
@@ -410,7 +420,7 @@ const AppContent = () => {
                     </Section>
 
                     {/* Skills Coverage Dashboard */}
-                    <Section className="relative overflow-hidden py-32" id="coverage">
+                    <Section className="relative overflow-hidden py-28" id="coverage">
                         <div className="max-w-6xl w-full z-10 relative">
                             <SectionHeader
                                 icon={Layers}
@@ -441,7 +451,7 @@ const AppContent = () => {
                     </Section>
 
                     {/* Experience Timeline */}
-                    <Section className="relative py-32" id="trace">
+                    <Section className="relative py-28" id="trace">
                         <div className="max-w-5xl w-full z-10">
                             <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-12 gap-4">
                                 <SectionHeader

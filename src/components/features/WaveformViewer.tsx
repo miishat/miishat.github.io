@@ -156,7 +156,7 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
                 {/* Waveform Canvas */}
                 <div
                     ref={containerRef}
-                    className="flex-1 bg-obsidian relative overflow-hidden cursor-crosshair group"
+                    className="flex-1 bg-[#020502] relative overflow-hidden cursor-crosshair group shadow-[inset_0_0_80px_rgba(0,0,0,0.95)]"
                     onMouseMove={handleMouseMove}
                 >
                     {/* Grid Lines - positioned at exact year boundaries */}
@@ -182,7 +182,7 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
                         className="absolute top-0 bottom-0 w-px bg-yellow-500 z-20 pointer-events-none group-hover:opacity-100 opacity-50"
                         style={{ left: getX(cursorTime) }}
                     >
-                        <div className="absolute -top-4 -left-10 bg-yellow-500 text-black px-1 rounded text-[10px] whitespace-nowrap">
+                        <div className="absolute -top-4 -left-10 bg-yellow-500 text-black px-1 rounded text-[10px] whitespace-nowrap font-bold">
                             t = {formatDecimalYear(cursorTime)}
                         </div>
                     </div>
@@ -194,8 +194,8 @@ const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) =
 
                         {/* CLK */}
                         <div className="h-10 relative border-b border-white/5 w-full">
-                            <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 24">
-                                <path d={clockPath} fill="none" stroke={c.clkStroke} strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+                            <svg className="w-full h-full drop-shadow-[0_0_4px_rgba(0,255,65,0.9)]" preserveAspectRatio="none" viewBox="0 0 100 24">
+                                <path d={clockPath} fill="none" stroke={c.clkStroke} strokeWidth="1" vectorEffect="non-scaling-stroke" />
                             </svg>
                         </div>
                         {/* RST */}

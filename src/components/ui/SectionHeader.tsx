@@ -24,7 +24,7 @@ const SectionHeader = ({ icon: Icon, title, subtitle, className = "mb-12" }: { i
             </MagneticWrapper>
             <div>
                 <h2
-                    className="text-4xl font-bold text-white mb-2 relative"
+                    className="text-4xl font-bold font-display tracking-tight text-white mb-2 relative"
                     onMouseEnter={() => {
                         // Quick scramble effect
                         let iter = 0;
