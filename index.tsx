@@ -31,7 +31,7 @@ import VimGutter from './src/components/layout/VimGutter';
 import BootSequence from './src/components/features/BootSequence';
 import MobileWarning from './src/components/features/MobileWarning';
 import MethodologyCard from './src/components/features/MethodologyCard';
-import SkillNode from './src/components/features/SkillNode';
+import WaferCoverage from './src/components/features/WaferCoverage';
 import TimelineItem from './src/components/features/TimelineItem';
 import SignalPacket from './src/components/features/SignalPacket';
 import SideProjectsSection from './src/components/features/SideProjectsSection';
@@ -432,25 +432,7 @@ const AppContent = () => {
                                 subtitle="covergroup cg_skills;"
                             />
 
-                            <div className="relative p-8 border border-gray-800 bg-gray-900/30 rounded-2xl backdrop-blur-sm shadow-2xl mt-8">
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-obsidian px-4 text-gray-500 font-mono text-xs border border-gray-800 rounded-full">
-                                    IP_BLOCK_SKILLS_MAP
-                                </div>
-
-                                <div className="absolute -left-1 top-10 w-1 h-8 bg-gray-700 rounded-r" />
-                                <div className="absolute -left-1 top-24 w-1 h-8 bg-gray-700 rounded-r" />
-                                <div className="absolute -right-1 top-10 w-1 h-8 bg-gray-700 rounded-l" />
-                                <div className="absolute -right-1 top-24 w-1 h-8 bg-gray-700 rounded-l" />
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    <SkillNode index={0} name="SystemVerilog" level={95} />
-                                    <SkillNode index={1} name="UVM Framework" level={90} />
-                                    <SkillNode index={2} name="Python / Scripting" level={85} />
-                                    <SkillNode index={3} name="Ethernet / COMPHY" level={80} />
-                                    <SkillNode index={4} name="Verdi / DVE" level={88} />
-                                    <SkillNode index={5} name="Formal (JasperGold)" level={75} />
-                                </div>
-                            </div>
+                            <WaferCoverage />
                         </div>
                     </Section>
 
