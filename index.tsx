@@ -20,7 +20,6 @@ import MagneticWrapper from './src/components/ui/MagneticWrapper';
 import ChipLoader from './src/components/ui/ChipLoader';
 import SectionHeader from './src/components/ui/SectionHeader';
 import VimCommandPalette from './src/components/ui/VimCommandPalette';
-import ConstructionTape from './src/components/ui/ConstructionTape';
 
 // --- Layout Components ---
 import Section from './src/components/layout/Section';
@@ -43,6 +42,7 @@ const Terminal = React.lazy(() => import('./src/components/features/Terminal'));
 
 // Lazy Load the heavy 3D Scene
 const SoCScene = React.lazy(() => import('./src/components/features/SoCScene'));
+const BreadboardHero = React.lazy(() => import('./src/components/features/BreadboardHero'));
 
 /**
  * Main Application Component.
@@ -220,9 +220,6 @@ const AppContent = () => {
                         <BootSequence onComplete={finishBoot} />
                     </motion.div>
                 )}
-                {bootComplete && theme === 'light' && (
-                    <ConstructionTape key="construction-tape" />
-                )}
             </AnimatePresence>
 
             {bootComplete && (
@@ -248,6 +245,10 @@ const AppContent = () => {
                     <Section as="header" className="h-screen overflow-hidden relative !pl-8 lg:!pl-8" id="top">
                         {theme === 'silicon' ? (
                             <MarkedPackageHero tooltip={tooltip} setTooltip={setTooltip} />
+                        ) : theme === 'light' ? (
+                            <React.Suspense fallback={<ChipLoader />}>
+                                <BreadboardHero tooltip={tooltip} setTooltip={setTooltip} />
+                            </React.Suspense>
                         ) : (
                             <>
                             <div

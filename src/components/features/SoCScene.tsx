@@ -57,13 +57,15 @@ interface BlockProps {
     description: string;
     onClick: (label: string, desc: string) => void;
     hoverColor?: string;
+    /** Light mode uses a matte finish; metal reads near-black without an environment map. */
+    metalness?: number;
 }
 
 /**
  * Represents a single functional block (IP) on the silicon die.
  * Interactive: Expands and glows on hover, displays a floating HTML label.
  */
-const IPBlock = ({ position, size, color, label, description, onClick, hoverColor = '#00f3ff' }: BlockProps) => {
+const IPBlock = ({ position, size, color, label, description, onClick, hoverColor = '#00f3ff', metalness = 0.8 }: BlockProps) => {
     const mesh = useRef<THREE.Mesh>(null);
     const [hovered, setHover] = useState(false);
 
@@ -97,7 +99,7 @@ const IPBlock = ({ position, size, color, label, description, onClick, hoverColo
                     emissive={hovered ? hoverColor : '#000000'}
                     emissiveIntensity={hovered ? 0.5 : 0}
                     roughness={0.2}
-                    metalness={0.8}
+                    metalness={metalness}
                 />
             </mesh>
             {hovered && (
@@ -176,12 +178,14 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
         }
     });
 
-    const baseColor = isLightMode ? '#cbd5e1' : '#1a1a1a';
-    const dieColor = isLightMode ? '#64748b' : '#111';
-    const pinColor = isLightMode ? '#475569' : '#d4af37';
-    const blockColor1 = isLightMode ? '#475569' : '#333';
-    const blockColor2 = isLightMode ? '#334155' : '#222';
-    const hoverColor = isLightMode ? '#7c3aed' : '#00f3ff';
+    const baseColor = isLightMode ? '#e3e9dc' : '#1a1a1a';
+    const dieColor = isLightMode ? '#d0dac6' : '#111';
+    const pinColor = isLightMode ? '#c9aa6a' : '#d4af37';
+    const blockColor1 = isLightMode ? '#b5ccb8' : '#333';
+    const blockColor2 = isLightMode ? '#c9bfd4' : '#222';
+    const hoverColor = isLightMode ? '#6f9a7a' : '#00f3ff';
+    const dieMetal = isLightMode ? 0.35 : 0.9;
+    const blockMetal = isLightMode ? 0.2 : 0.8;
 
     return (
         <group ref={chipRef} rotation={[0.5, 0, 0]}>
@@ -194,14 +198,14 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
             {/* Die */}
             <mesh position={[0, 0, 0]}>
                 <boxGeometry args={[3.5, 0.1, 3.5]} />
-                <meshStandardMaterial color={dieColor} metalness={0.9} roughness={0.1} />
+                <meshStandardMaterial color={dieColor} metalness={dieMetal} roughness={0.1} />
             </mesh>
 
             {/* Pins */}
             {PINS.map((pin) => (
                 <mesh key={pin.key} position={pin.position}>
                     <boxGeometry args={[0.1, 0.1, 0.4]} />
-                    <meshStandardMaterial color={pinColor} metalness={1} roughness={0.3} />
+                    <meshStandardMaterial color={pinColor} metalness={isLightMode ? 0.4 : 1} roughness={0.3} />
                 </mesh>
             ))}
 
@@ -214,6 +218,7 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
                 description="Traffic management & control logic for AI clusters."
                 onClick={onBlockSelect}
                 hoverColor={hoverColor}
+                metalness={blockMetal}
             />
             <IPBlock
                 position={[0.8, 0.2, -0.8]}
@@ -223,6 +228,7 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
                 description="Coherent mesh, L3 Cache & DDR controller verification."
                 onClick={onBlockSelect}
                 hoverColor={hoverColor}
+                metalness={blockMetal}
             />
             <IPBlock
                 position={[0, 0.2, 0.8]}
@@ -232,6 +238,7 @@ const ProcessorChip = ({ onBlockSelect, isLightMode }: { onBlockSelect: (l: stri
                 description="COMPHY bringups & High-Speed I/O verification."
                 onClick={onBlockSelect}
                 hoverColor={hoverColor}
+                metalness={blockMetal}
             />
 
             {/* Interconnects (Visual only) */}
@@ -265,11 +272,11 @@ export default function SoCScene({ setTooltip, theme = 'default' }: { setTooltip
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Theme values - Matches CSS variable --color-obsidian (#f0f4f8)
-    const fogColor = isLightMode ? '#f0f4f8' : '#050510';
+    // Theme values - Matches CSS variable --color-obsidian (#eef1ea)
+    const fogColor = isLightMode ? '#eef1ea' : '#050510';
     const ambientInt = isLightMode ? 0.8 : 0.5;
-    const pointLightColor1 = isLightMode ? '#0ea5e9' : '#00f3ff';
-    const pointLightColor2 = isLightMode ? '#6366f1' : '#b026ff';
+    const pointLightColor1 = isLightMode ? '#fff8e6' : '#00f3ff';
+    const pointLightColor2 = isLightMode ? '#e8f2e2' : '#b026ff';
 
     return (
         <div className={`w-full h-full absolute inset-0 z-0 ${isMobile ? 'pointer-events-none' : ''}`}>

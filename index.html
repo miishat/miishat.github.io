@@ -107,62 +107,222 @@
         }
 
         /* -------------------------------------------------------------------------- */
-        /*                        Theme: Light (Clean Lab)                            */
+        /*                        Theme: Light (Breadboard)                           */
         /* -------------------------------------------------------------------------- */
-        /* Clean Lab Theme (Light Mode) */
+        /* Soft sage solderless breadboard: square contact holes, +/- power rails on every
+           section, cards as plug-in modules with header pins and a jumper wire. */
         body.theme-light {
-            /* Invert Base Colors: Black becomes White (cards), White becomes Black (text) */
-            --color-black: 255 255 255;
-            --color-white: 15 23 42;
-            /* Slate 900 */
+            /* Inverted base: Black is the card fill, White is the ink */
+            --color-black: 249 250 246;
+            --color-white: 62 72 62;
 
-            --color-obsidian: #e2e8f0;
-            /* Cool Engineering Gray/Blue */
-            --color-electric: #0284c7;
-            /* Sky 600 */
-            --color-deepblue: #e2e8f0;
-            /* Slate 200 */
-            --color-neonpurple: #7c3aed;
-            /* Violet 600 */
-            --color-pcbgold: #d97706;
-            /* Amber 600 */
-            --color-success: #059669;
-            /* Emerald 600 */
+            --color-obsidian: #eef1ea;
+            --color-deepblue: #eef1ea;
+            --color-electric: #6f9a7a;
+            /* Sage */
+            --color-neonpurple: #9a8aa6;
+            --color-pcbgold: #c9aa6a;
+            --color-success: #7ea37e;
 
-            --color-grid: #cbd5e1;
+            --color-grid: #dde3d6;
 
-            /* Inverted Gray Scale for High Contrast */
-            --color-gray-100: #0f172a;
-            /* Slate 900 (Input Text) */
-            --color-gray-200: #1e293b;
-            /* Slate 800 */
-            --color-gray-300: #334155;
-            /* Slate 700 (Subtitles) */
-            --color-gray-400: #475569;
-            /* Slate 600 (Descriptions) */
-            --color-gray-500: #64748b;
-            /* Slate 500 */
-            --color-gray-600: #475569;
-            /* Slate 600 (Dim text) */
-            --color-gray-700: #94a3b8;
-            /* Slate 400 (Borders/Accents) */
-            --color-gray-800: #cbd5e1;
-            /* Slate 300 (Card Borders) */
-            --color-gray-900: #ffffff;
-            /* White (Card Backgrounds) */
+            /* Inverted gray scale: 100 is darkest ink, 900 is the card fill */
+            --color-gray-100: #3e483e;
+            --color-gray-200: #4b564b;
+            --color-gray-300: #5c685c;
+            --color-gray-400: #748074;
+            --color-gray-500: #8e998d;
+            --color-gray-600: #748074;
+            --color-gray-700: #c3cbbd;
+            --color-gray-800: #e0e5da;
+            --color-gray-900: #f9faf6;
 
+            counter-reset: bb-sec bb-ref;
+            /* Contact holes: the base color shows only where both masks leave a 4px gap */
+            background-color: #d5dccf;
             background-image:
-                linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(90deg, transparent 0 4px, #eef1ea 4px),
+                linear-gradient(transparent 0 4px, #eef1ea 4px);
+            background-size: 18px 18px;
+        }
+
+        body.theme-light h1,
+        body.theme-light h2,
+        body.theme-light h3 {
+            letter-spacing: 0;
+        }
+
+        /* Rows: each section is labelled and carries +/- rails top and bottom */
+        body.theme-light section {
+            counter-increment: bb-sec;
+            margin: 2.5rem 0;
+            padding-top: 5rem !important;
+        }
+
+        body.theme-light section::before {
+            content: "ROW " counter(bb-sec) "  \00B7  " attr(id);
+            position: absolute;
+            top: 30px;
+            left: 4rem;
+            z-index: 5;
+            font: 700 10px/1 'JetBrains Mono', monospace;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--color-gray-500);
+        }
+
+        body.theme-light section::after {
+            content: "+\A\2212";
+            white-space: pre;
+            position: absolute;
+            top: 4px;
+            left: 2.6rem;
+            right: 2rem;
+            bottom: 4px;
+            font: 700 9px/11px 'JetBrains Mono', monospace;
+            color: var(--color-gray-500);
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(214, 120, 110, 0.55), rgba(214, 120, 110, 0.55)) left 16px top 5px / calc(100% - 16px) 1.5px,
+                linear-gradient(rgba(110, 140, 200, 0.55), rgba(110, 140, 200, 0.55)) left 16px top 16px / calc(100% - 16px) 1.5px,
+                linear-gradient(rgba(214, 120, 110, 0.55), rgba(214, 120, 110, 0.55)) left 16px bottom 16px / calc(100% - 16px) 1.5px,
+                linear-gradient(rgba(110, 140, 200, 0.55), rgba(110, 140, 200, 0.55)) left 16px bottom 5px / calc(100% - 16px) 1.5px;
+            background-repeat: no-repeat;
+        }
+
+        /* Modules: cards and translucent panels become solid plug-in boards */
+        body.theme-light :is(.group, [class*="bg-gray-900/"], [class*="bg-black/"]) {
+            counter-increment: bb-ref;
+            background: rgb(var(--color-black)) !important;
+            border: 1px solid rgba(62, 72, 62, 0.16) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 0 rgba(62, 72, 62, 0.06), 0 10px 22px -16px rgba(62, 72, 62, 0.45) !important;
+            overflow: visible !important;
+        }
+
+        /* Header pins along the top edge */
+        body.theme-light :is(.group, [class*="bg-gray-900/"], [class*="bg-black/"])::after {
+            content: "";
+            position: absolute;
+            top: -5px;
+            left: 18px;
+            width: min(120px, 40%);
+            height: 7px;
+            pointer-events: none;
+            background: repeating-linear-gradient(90deg, var(--color-pcbgold) 0 6px, transparent 6px 10px);
+            border-radius: 1px;
+        }
+
+        /* Jumper wire, alternating coral and blue */
+        body.theme-light :is(.group, [class*="bg-gray-900/"], [class*="bg-black/"])::before {
+            content: "";
+            position: absolute;
+            top: -16px;
+            right: 26px;
+            width: 54px;
+            height: 16px;
+            pointer-events: none;
+            z-index: 5;
+            border: 2px solid rgba(214, 140, 120, 0.7);
+            border-bottom: 0;
+            border-radius: 30px 30px 0 0;
+        }
+
+        body.theme-light :is(.group, [class*="bg-gray-900/"], [class*="bg-black/"]):nth-child(even)::before {
+            border-color: rgba(120, 150, 200, 0.7);
+            width: 38px;
+        }
+
+        body.theme-light :is(.group, [class*="bg-gray-900/"], [class*="bg-black/"]):hover {
+            border-color: var(--color-electric) !important;
+            box-shadow: 0 0 0 3px rgba(111, 154, 122, 0.15), 0 14px 26px -16px rgba(62, 72, 62, 0.5) !important;
+        }
+
+        /* Round panels (the coverage wafer) stay round and skip module decorations */
+        body.theme-light .rounded-full[class*="bg-gray-900/"] {
+            border-radius: 9999px !important;
+        }
+
+        body.theme-light .rounded-full[class*="bg-gray-900/"]::before,
+        body.theme-light .rounded-full[class*="bg-gray-900/"]::after {
+            content: none !important;
+        }
+
+        body.theme-light .border-gray-800 {
+            border-color: rgba(62, 72, 62, 0.18) !important;
+        }
+
+        body.theme-light svg {
+            color: var(--color-electric);
+        }
+
+        /* Solid fills so the holes don't show through: trace log cards and the coverage slot rack */
+        body.theme-light #trace .rounded-lg.border.p-5,
+        body.theme-light #coverage [class*="bg-obsidian/80"] {
+            background: rgb(var(--color-black)) !important;
+            box-shadow: 0 2px 0 rgba(62, 72, 62, 0.06), 0 10px 22px -16px rgba(62, 72, 62, 0.45);
+        }
+
+        body.theme-light #trace .rounded-lg.border.p-5 {
+            position: relative;
+            transition: box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        body.theme-light #coverage .border-electric {
+            background: rgba(111, 154, 122, 0.12);
+        }
+
+        /* Selected trace card plugs in like a DIP chip: notch on top, pin legs both sides */
+        body.theme-light #trace .rounded-lg.border.p-5[style*="--color-electric"] {
+            border-color: rgba(62, 72, 62, 0.55) !important;
+            border-width: 1.5px !important;
+            box-shadow: 0 16px 30px -18px rgba(62, 72, 62, 0.55) !important;
+        }
+
+        body.theme-light #trace .rounded-lg.border.p-5[style*="--color-electric"]::before {
+            content: "";
+            position: absolute;
+            top: -1.5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 22px;
+            height: 11px;
+            pointer-events: none;
+            border: 1.5px solid rgba(62, 72, 62, 0.55);
+            border-top: 0;
+            border-radius: 0 0 22px 22px;
+            background: var(--color-obsidian);
+        }
+
+        body.theme-light #trace .rounded-lg.border.p-5[style*="--color-electric"]::after {
+            content: "";
+            position: absolute;
+            top: 14px;
+            bottom: 14px;
+            left: -8px;
+            right: -8px;
+            pointer-events: none;
+            background:
+                repeating-linear-gradient(180deg, #b3bcb0 0 5px, transparent 5px 16px) left / 7px 100% no-repeat,
+                repeating-linear-gradient(180deg, #b3bcb0 0 5px, transparent 5px 16px) right / 7px 100% no-repeat;
+        }
+
+        /* CyberText carries .group; the hero name stays on the board, not in a module card */
+        body.theme-light #top .group {
+            background: transparent !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        body.theme-light #top .group::before,
+        body.theme-light #top .group::after {
+            content: none !important;
         }
 
         /* Component Specific Overrides for Light Mode */
         body.theme-light .glow-text {
-            text-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-            color: #3b82f6 !important;
-            font-weight: 900;
-            letter-spacing: -0.05em;
+            color: var(--color-electric) !important;
+            text-shadow: 0 1px 0 #fff;
         }
 
         body.theme-light .mix-blend-screen {
@@ -170,12 +330,12 @@
         }
 
         body.theme-light input {
-            caret-color: #0284c7;
+            caret-color: #6f9a7a;
         }
 
         /* Fix placeholder contrast */
         body.theme-light .placeholder-gray-600::placeholder {
-            color: #94a3b8 !important;
+            color: #8e998d !important;
         }
 
         /* -------------------------------------------------------------------------- */
