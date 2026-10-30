@@ -395,11 +395,13 @@ const EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
  */
 const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: string | null; hint: string; instant: boolean }) => {
     const t = { duration: instant ? 0 : MORPH_SECONDS, ease: EASE };
-    const row = { layout: 'position' as const, transition: t };
+    // layoutDependency limits the slide to the morph itself; otherwise swapping the hint for a
+    // wider tooltip on hover also re-centres the row and glides it in from the side
+    const row = { layout: 'position' as const, layoutDependency: split, transition: t };
     return (
         // Lifted with bottom padding rather than a transform, so layout animation measures cleanly
         <div className={`absolute inset-0 z-10 pointer-events-none flex flex-col justify-center ${split ? 'items-start pl-[9vw] pb-24' : 'items-center pb-56'}`}>
-            <motion.div layout transition={t}>
+            <motion.div layout layoutDependency={split} transition={t}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
                     className={`flex flex-col ${split ? 'items-start text-left' : 'items-center text-center'}`}
