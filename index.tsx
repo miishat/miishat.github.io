@@ -35,6 +35,7 @@ import WaferCoverage from './src/components/features/WaferCoverage';
 import TimelineItem from './src/components/features/TimelineItem';
 import SignalPacket from './src/components/features/SignalPacket';
 import SideProjectsSection from './src/components/features/SideProjectsSection';
+import VerificationCoreSection from './src/components/features/VerificationCoreSection';
 
 // --- Lazy Loaded Components ---
 const WaveformViewer = React.lazy(() => import('./src/components/features/WaveformViewer'));
@@ -351,77 +352,8 @@ const AppContent = () => {
                     </Section>
 
                     <main>
-                        {/* Verification Logic Section */}
-                        <Section fill={false} className="relative overflow-hidden pt-[28rem] pb-48" id="verification">
-
-                        <div className="grid lg:grid-cols-12 gap-12 max-w-7xl w-full items-start z-10 relative">
-
-                            <div className="lg:col-span-5 relative">
-                                <SectionHeader
-                                    icon={Activity}
-                                    title="Verification Core"
-                                    subtitle="module portfolio_top;"
-                                />
-
-                                <p className="text-gray-300 text-lg leading-relaxed mb-6 border-l-2 border-electric pl-6">
-                                    <span className="text-electric font-mono text-sm block mb-2">// PHILOSOPHY</span>
-                                    Just as a heartbeat sustains life, rigorous verification sustains silicon. I architect
-                                    <span className="text-pcbgold font-bold"> UVM-based environments </span>
-                                    that stress-test SoCs beyond their limits, ensuring functional perfection before tape-out.
-                                </p>
-                                <div className="flex flex-wrap gap-4 mt-8">
-                                    <div className="bg-gray-900/50 px-4 py-2 rounded border border-gray-800 text-xs font-mono text-gray-400">
-                                        <span className="text-success">✔</span> AI Chips & SerDes
-                                    </div>
-                                    <div className="bg-gray-900/50 px-4 py-2 rounded border border-gray-800 text-xs font-mono text-gray-400">
-                                        <span className="text-pcbgold">★</span> 100% Coverage
-                                    </div>
-                                    <div className="bg-gray-900/50 px-4 py-2 rounded border border-gray-800 text-xs font-mono text-gray-400">
-                                        <span className="text-electric">⚡</span> Zero Bugs
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="lg:col-span-7 mt-20 lg:mt-0">
-                                <div className="grid md:grid-cols-2 gap-4 relative">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-electric/5 to-purple-500/5 rounded-3xl blur-2xl -z-10" />
-
-                                    <MethodologyCard
-                                        title="Constrained Random"
-                                        desc="Maximizing functional coverage via UVM-driven randomized stimulus generation."
-                                        icon={Dices}
-                                        color="bg-electric"
-                                        colorHex="#00f3ff"
-                                        delay={0.1}
-                                    />
-                                    <MethodologyCard
-                                        title="Formal Verification"
-                                        desc="Mathematical proofs for safety-critical logic using JasperGold (ABV)."
-                                        icon={Shield}
-                                        color="bg-pcbgold"
-                                        colorHex="#d4af37"
-                                        delay={0.2}
-                                    />
-                                    <MethodologyCard
-                                        title="High-Speed Protocols"
-                                        desc="Expertise in Ethernet, COMPHY (SerDes), and complex high-bandwidth interfaces."
-                                        icon={Network}
-                                        color="bg-success"
-                                        colorHex="#00ff41"
-                                        delay={0.3}
-                                    />
-                                    <MethodologyCard
-                                        title="AI Network Control"
-                                        desc="Validating AI chip interconnects and traffic management logic."
-                                        icon={ArrowRightLeft}
-                                        color="bg-neonpurple"
-                                        colorHex="#b026ff"
-                                        delay={0.4}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </Section>
+                        {/* Verification Core: UVM testbench topology */}
+                        <VerificationCoreSection />
 
                     {/* Skills Coverage Dashboard */}
                     <Section fill={false} className="relative overflow-hidden py-48" id="coverage">
