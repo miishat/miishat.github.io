@@ -399,8 +399,14 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
     // wider tooltip on hover also re-centres the row and glides it in from the side
     const row = { layout: 'position' as const, layoutDependency: split, transition: t };
     return (
-        // Lifted with bottom padding rather than a transform, so layout animation measures cleanly
-        <div className={`absolute inset-0 z-10 pointer-events-none flex flex-col justify-center ${split ? 'items-start pl-[9vw] pb-24' : 'items-center pb-56'}`}>
+        // Lifted with bottom padding rather than a transform, so layout animation measures cleanly.
+        // The paddings are inline, not Tailwind classes: the CDN only generates a class's CSS the
+        // first time it appears, so on the first split framer-motion would measure the target
+        // layout before the padding existed and start the slide from the wrong place.
+        <div
+            className={`absolute inset-0 z-10 pointer-events-none flex flex-col justify-center ${split ? 'items-start' : 'items-center'}`}
+            style={split ? { paddingLeft: '9vw', paddingBottom: 96 } : { paddingBottom: 224 }}
+        >
             <motion.div layout layoutDependency={split} transition={t}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
