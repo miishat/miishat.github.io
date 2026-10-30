@@ -34,6 +34,7 @@ import MethodologyCard from './src/components/features/MethodologyCard';
 import SkillNode from './src/components/features/SkillNode';
 import TimelineItem from './src/components/features/TimelineItem';
 import SignalPacket from './src/components/features/SignalPacket';
+import SideProjectsSection from './src/components/features/SideProjectsSection';
 
 // --- Lazy Loaded Components ---
 const WaveformViewer = React.lazy(() => import('./src/components/features/WaveformViewer'));
@@ -439,6 +440,9 @@ const AppContent = () => {
                             </div>
                         </div>
                     </Section>
+
+                    {/* Side Projects (floorplan) */}
+                    <SideProjectsSection />
 
                     {/* Experience Timeline */}
                     <Section className="relative py-32" id="trace">
