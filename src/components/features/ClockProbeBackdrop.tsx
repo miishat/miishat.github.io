@@ -287,12 +287,13 @@ const Fade = ({ on, children }: { on: boolean; children: React.ReactNode }) => (
 
 const ClockProbeBackdrop = () => {
     const split = useHeroSplit();
+    // dimmed as a whole so it stays behind the content
     return (
-        <>
+        <div style={{ opacity: 0.6 }}>
             <Fade on={!split}><ClockTree active={!split} /></Fade>
             <Fade on={split}><ProbedBoard active={split} /></Fade>
             <Layer style={{ backgroundImage: 'repeating-linear-gradient(to bottom, rgba(0,0,0,0.28) 0 1px, transparent 1px 3px)' }} />
-        </>
+        </div>
     );
 };
 
