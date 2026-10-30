@@ -99,6 +99,12 @@
         /* -------------------------------------------------------------------------- */
         /*                            Global Body Styles                              */
         /* -------------------------------------------------------------------------- */
+        /* Keeps the scrollbar's space reserved while the boot locks scrolling, so the page
+           doesn't get 8px narrower (and the hero shift) the moment the boot ends */
+        html {
+            scrollbar-gutter: stable;
+        }
+
         body {
             background-color: var(--color-obsidian);
             color: rgb(var(--color-white));

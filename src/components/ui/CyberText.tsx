@@ -36,6 +36,9 @@ const CyberText = ({ text }: { text: string }) => {
 
     useEffect(() => {
         scramble();
+        // Decode again when the boot screen lifts, since the page mounts underneath it
+        window.addEventListener('boot-done', scramble);
+        return () => window.removeEventListener('boot-done', scramble);
     }, []);
 
     return (

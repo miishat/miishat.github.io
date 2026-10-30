@@ -15,6 +15,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Cpu } from 'lucide-react';
 import * as THREE from 'three';
 import CyberText from '../ui/CyberText';
+import { BLOCK_DETAIL, DIE, FAN_OUT, FLOORPLAN, IPKey, MISC_BLOCKS, PACKAGE, ProjectChip, ROUTES, Rect, heroChip } from './heroChip';
 
 type Props = { setTooltip: (t: string | null) => void; tooltip: string | null };
 type V3 = [number, number, number];
@@ -22,7 +23,6 @@ type V3 = [number, number, number];
 // ---------------------------------------------------------------------------
 // Shared data
 // ---------------------------------------------------------------------------
-type IPKey = 'ai' | 'cpu' | 'serdes';
 type IP = { key: IPKey; label: string; desc: string };
 const IPS: IP[] = [
     { key: 'ai', label: 'AI Network Control', desc: 'Traffic management & control logic for AI clusters.' },
@@ -40,52 +40,16 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 // ---------------------------------------------------------------------------
 // Hologram (opening state)
 // ---------------------------------------------------------------------------
-const DIE = 3.2;
-/** Die floorplan in die-relative fractions: [x, y, w, h]. */
-const FLOORPLAN: Record<IPKey, [number, number, number, number]> = {
-    ai: [0.06, 0.06, 0.42, 0.4],
-    cpu: [0.52, 0.06, 0.42, 0.4],
-    serdes: [0.06, 0.54, 0.88, 0.22],
-};
-const MISC_BLOCKS: [number, number, number, number][] = [[0.06, 0.8, 0.4, 0.14], [0.5, 0.8, 0.2, 0.14], [0.74, 0.8, 0.2, 0.14]];
-/** Signal routes between the IP blocks, in floorplan fractions. */
-const ROUTES: [number, number][][] = [
-    [[0.27, 0.26], [0.5, 0.26], [0.73, 0.26]],
-    [[0.73, 0.26], [0.73, 0.5], [0.5, 0.5], [0.5, 0.65]],
-    [[0.5, 0.65], [0.27, 0.65], [0.27, 0.5], [0.27, 0.26]],
-    [[0.2, 0.87], [0.2, 0.5], [0.27, 0.26]],
-    [[0.6, 0.87], [0.6, 0.5], [0.73, 0.26]],
-];
-
 const fpWorld = (fx: number, fy: number, y = 0): V3 => [(fx - 0.5) * DIE, y, (fy - 0.5) * DIE];
-const rectPts = (x: number, y: number, w: number, h: number, yy = 0.06): V3[] =>
+const rectPts = ([x, y, w, h]: Rect, yy = 0.06): V3[] =>
     [fpWorld(x, y, yy), fpWorld(x + w, y, yy), fpWorld(x + w, y + h, yy), fpWorld(x, y + h, yy), fpWorld(x, y, yy)];
 
-const IP_OUTLINES: V3[][] = IPS.map(ip => rectPts(...FLOORPLAN[ip.key]));
-const MISC_OUTLINES: V3[][] = MISC_BLOCKS.map(b => rectPts(...b));
+const IP_OUTLINES: V3[][] = IPS.map(ip => rectPts(FLOORPLAN[ip.key]));
+const MISC_OUTLINES: V3[][] = MISC_BLOCKS.map(b => rectPts(b));
 
-/** Gold fan-out traces from the die edge to the package edge, 14 per side. */
-const FAN_OUT: V3[][] = (() => {
-    const out: V3[][] = [];
-    for (let side = 0; side < 4; side++) for (let i = 0; i < 14; i++) {
-        const o = (i / 13 - 0.5) * (DIE - 0.3), a = DIE / 2 + 0.05, b = DIE / 2 + 0.45, c = 2.35;
-        out.push(([[o, a], [o, b], [o * 1.35, c]] as [number, number][]).map(([u, v]) => {
-            const [x, z] = side === 0 ? [u, v] : side === 1 ? [u, -v] : side === 2 ? [v, u] : [-v, u];
-            return [x, -0.05, z];
-        }));
-    }
-    return out;
-})();
-
-/** Inner detail of each IP block: the AI array tiles, the four CPU cores, the 16 SerDes lanes. */
-const BLOCK_DETAIL: V3[][] = (() => {
-    const out: V3[][] = [];
-    const [ax, ay] = FLOORPLAN.ai, [cx, cy] = FLOORPLAN.cpu, [sx, sy] = FLOORPLAN.serdes;
-    for (let i = 0; i < 8; i++) for (let j = 0; j < 6; j++) out.push(rectPts(ax + 0.03 + i * 0.045, ay + 0.08 + j * 0.05, 0.035, 0.04));
-    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) out.push(rectPts(cx + 0.03 + i * 0.19, cy + 0.07 + j * 0.12, 0.17, 0.1));
-    for (let i = 0; i < 16; i++) out.push(rectPts(sx + 0.02 + i * 0.053, sy + 0.06, 0.04, 0.13));
-    return out;
-})();
+/** Gold fan-out traces, just under the die. */
+const FAN_OUT_3D: V3[][] = FAN_OUT.map(pts => pts.map(([x, z]): V3 => [x, -0.05, z]));
+const BLOCK_DETAIL_3D: V3[][] = BLOCK_DETAIL.map(b => rectPts(b));
 
 const Tag = ({ text, color, position }: { text: string; color: string; position: V3 }) => (
     <Html position={position} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
@@ -151,10 +115,10 @@ const Hologram = ({ setTooltip }: { setTooltip: Props['setTooltip'] }) => {
                 <meshBasicMaterial color={C.cyan} transparent opacity={0.06} depthWrite={false} />
                 <Edges color={C.cyan} />
             </mesh>
-            {FAN_OUT.map((pts, i) => <Line key={i} points={pts} color={C.gold} lineWidth={1} transparent opacity={0.45} />)}
+            {FAN_OUT_3D.map((pts, i) => <Line key={i} points={pts} color={C.gold} lineWidth={1} transparent opacity={0.45} />)}
             {IPS.map((ip, i) => <Line key={ip.key} points={IP_OUTLINES[i]} color={IP_COLOR[ip.key]} lineWidth={1.6} />)}
             {MISC_OUTLINES.map((pts, i) => <Line key={i} points={pts} color={C.ink} lineWidth={1} dashed dashSize={0.05} gapSize={0.04} transparent opacity={0.6} />)}
-            {BLOCK_DETAIL.map((pts, i) => <Line key={i} points={pts} color={C.cyan} lineWidth={0.8} transparent opacity={0.3} />)}
+            {BLOCK_DETAIL_3D.map((pts, i) => <Line key={i} points={pts} color={C.cyan} lineWidth={0.8} transparent opacity={0.3} />)}
             {ROUTES.map((r, i) => <Pulse key={i} route={r} speed={0.18 + i * 0.03} offset={i * 0.21} color={[C.cyan, C.gold, C.purple][i % 3]} />)}
             <group ref={scan} position={[0, 0.08, 0]}>
                 <mesh><boxGeometry args={[DIE, 0.01, 0.025]} /><meshBasicMaterial color={C.cyan} toneMapped={false} /></mesh>
@@ -345,14 +309,37 @@ const MorphScene = React.memo(({ target, instant, setTooltip }: { target: React.
 
     useEffect(() => () => (camera as THREE.PerspectiveCamera).clearViewOffset(), [camera]);
 
+    // Lets the Default theme boot tilt its 2D drawing of the chip onto this hologram: the drawing
+    // starts facing the camera and turns (a real rotation, slerped) into the hologram's own pose
+    const project = useMemo<ProjectChip>(() => {
+        const FACE = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0)); // die face to camera, top edge up
+        const h = PACKAGE / 2, corners = [[-h, -h], [h, -h], [h, h], [-h, h]];
+        const tp = new THREE.Vector3(), tq = new THREE.Quaternion(), ts = new THREE.Vector3();
+        const cp = new THREE.Vector3(), cq = new THREE.Quaternion(), cs = new THREE.Vector3();
+        const m = new THREE.Matrix4(), v = new THREE.Vector3();
+        return (tilt, y, flatScale) => {
+            const r = gl.domElement.getBoundingClientRect();
+            holo.current!.matrixWorld.decompose(tp, tq, ts);
+            camera.matrixWorld.decompose(cp, cq, cs);
+            m.compose(tp, cq.multiply(FACE).slerp(tq, tilt), ts.multiplyScalar(1 + (flatScale - 1) * (1 - tilt)));
+            return corners.map(([x, z]) => {
+                v.set(x, y, z).applyMatrix4(m).project(camera);
+                return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height];
+            });
+        };
+    }, [camera, gl]);
+    useEffect(() => () => { heroChip.project = null; }, []);
+
     useFrame((_, dt) => {
         // On the second frame (after fadeGroup has set up the materials), show both states
         // and compile their shaders, so the first click doesn't stall on shader compilation.
         if (warmFrames.current < 2 && ++warmFrames.current === 2 && holo.current && mesh.current) {
             holo.current.visible = mesh.current.visible = true;
             gl.compile(scene, camera);
+            heroChip.project = project; // the camera and matrices are settled by now
         }
-        if (spin.current) spin.current.rotation.y += dt * SPIN;
+        // held while the boot draws the chip, so its drawing lands on a still target
+        if (spin.current && !heroChip.booting) spin.current.rotation.y += dt * SPIN;
         // advance toward the target at a fixed rate, then smoothstep
         const d = target.current - progress.current;
         progress.current += instant ? d : Math.sign(d) * Math.min(Math.abs(d), dt / MORPH_SECONDS);

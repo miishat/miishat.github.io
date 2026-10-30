@@ -24,6 +24,7 @@ import VimGutter from './src/components/layout/VimGutter';
 
 // --- Feature Components ---
 import BootSequence from './src/components/features/BootSequence';
+import ChipBootSequence from './src/components/features/ChipBootSequence';
 import MobileWarning from './src/components/features/MobileWarning';
 import WaferCoverage from './src/components/features/WaferCoverage';
 import ExecutionTrace from './src/components/features/ExecutionTrace';
@@ -67,12 +68,16 @@ const AppContent = () => {
     });
     const [showMobileWarning, setShowMobileWarning] = useState(false);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
+    // The Default theme draws its hero chip and hands over to it; the other heroes keep the POST log
+    const BootView = theme === 'default' ? ChipBootSequence : BootSequence;
 
     const finishBoot = useCallback(() => {
         try {
             sessionStorage.setItem('portfolio-booted', '1');
         } catch (e) {}
         setBootComplete(true);
+        // Lets the already-mounted hero replay its intro as the boot screen lifts
+        window.dispatchEvent(new Event('boot-done'));
     }, []);
 
     useEffect(() => {
@@ -134,6 +139,13 @@ const AppContent = () => {
         window.scrollTo(0, 0);
     }, []);
 
+    // The page mounts under the boot screen, so keep it from scrolling until the boot ends
+    useEffect(() => {
+        if (bootComplete) return;
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = ''; };
+    }, [bootComplete]);
+
     useLayoutEffect(() => {
         if (bootComplete) {
             window.scrollTo(0, 0);
@@ -167,89 +179,92 @@ const AppContent = () => {
                     </motion.div>
                 )}
                 {!bootComplete && !showMobileWarning && (
-                    <motion.div exit={{ opacity: 0 }} transition={{ duration: 1 }}>
-                        <BootSequence onComplete={finishBoot} />
+                    <motion.div
+                        className="fixed inset-0 z-[90]"
+                        exit={{ opacity: 0, scale: 1.06, filter: 'blur(10px)' }}
+                        transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+                    >
+                        <BootView onComplete={finishBoot} />
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {bootComplete && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
-                    className="bg-obsidian text-white selection:bg-electric selection:text-white transition-colors duration-500 relative min-h-screen overflow-x-hidden"
-                >
+            {/* Mounted during the boot too, so the hero is loaded by the time the boot screen lifts */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className="bg-obsidian text-white selection:bg-electric selection:text-white transition-colors duration-500 relative min-h-screen overflow-x-hidden"
+            >
 
 
-                    {/* Default theme page background: clock tree, then a probed board once the hero splits */}
-                    {theme === 'default' && <ClockProbeBackdrop />}
-                    {theme === 'silicon' && <RtlRainBackdrop />}
+                {/* Default theme page background: clock tree, then a probed board once the hero splits */}
+                {theme === 'default' && <ClockProbeBackdrop />}
+                {theme === 'silicon' && <RtlRainBackdrop />}
 
-                    {/* Custom Hardware Probe Cursor */}
-                    <CustomCursor />
+                {/* Custom Hardware Probe Cursor */}
+                <CustomCursor />
 
-                    {/* Vim Gutter (Left Side) */}
-                    <VimGutter />
+                {/* Vim Gutter (Left Side) */}
+                <VimGutter />
 
-                    {/* Hero Section */}
-                    <Section as="header" className="h-screen overflow-hidden relative !pl-8 lg:!pl-8" id="top">
-                        {theme === 'silicon' ? (
-                            <MarkedPackageHero tooltip={tooltip} setTooltip={setTooltip} />
-                        ) : theme === 'light' ? (
-                            <React.Suspense fallback={<ChipLoader />}>
-                                <BreadboardHero tooltip={tooltip} setTooltip={setTooltip} />
-                            </React.Suspense>
-                        ) : (
-                            <React.Suspense fallback={<ChipLoader />}>
-                                <NocMorphHero tooltip={tooltip} setTooltip={setTooltip} />
-                            </React.Suspense>
-                        )}
+                {/* Hero Section */}
+                <Section as="header" className="h-screen overflow-hidden relative !pl-8 lg:!pl-8" id="top">
+                    {theme === 'silicon' ? (
+                        <MarkedPackageHero tooltip={tooltip} setTooltip={setTooltip} />
+                    ) : theme === 'light' ? (
+                        <React.Suspense fallback={<ChipLoader />}>
+                            <BreadboardHero tooltip={tooltip} setTooltip={setTooltip} />
+                        </React.Suspense>
+                    ) : (
+                        <React.Suspense fallback={<ChipLoader />}>
+                            <NocMorphHero tooltip={tooltip} setTooltip={setTooltip} />
+                        </React.Suspense>
+                    )}
 
-                        <ScrollCue />
-                    </Section>
+                    <ScrollCue />
+                </Section>
 
-                    <main>
-                        {/* Verification Core: UVM testbench topology */}
-                        <VerificationCoreSection />
+                <main>
+                    {/* Verification Core: UVM testbench topology */}
+                    <VerificationCoreSection />
 
-                    {/* Skills Coverage Dashboard */}
-                    <Section fill={false} className="relative overflow-hidden py-48" id="coverage">
-                        <div className="max-w-6xl w-full z-10 relative">
-                            <SectionHeader
-                                icon={Layers}
-                                title="Functional Coverage"
-                                subtitle="covergroup cg_skills;"
-                            />
+                {/* Skills Coverage Dashboard */}
+                <Section fill={false} className="relative overflow-hidden py-48" id="coverage">
+                    <div className="max-w-6xl w-full z-10 relative">
+                        <SectionHeader
+                            icon={Layers}
+                            title="Functional Coverage"
+                            subtitle="covergroup cg_skills;"
+                        />
 
-                            <WaferCoverage />
-                        </div>
-                    </Section>
+                        <WaferCoverage />
+                    </div>
+                </Section>
 
-                    {/* Spare Cycles: side projects floorplan */}
-                    <SideProjectsSection />
+                {/* Spare Cycles: side projects floorplan */}
+                <SideProjectsSection />
 
-                    {/* Experience Timeline */}
-                    <Section fill={false} className="relative py-48" id="trace">
-                        <div className="max-w-5xl w-full z-10">
-                            <ExecutionTrace />
-                        </div>
-                    </Section>
-                    </main>
+                {/* Experience Timeline */}
+                <Section fill={false} className="relative py-48" id="trace">
+                    <div className="max-w-5xl w-full z-10">
+                        <ExecutionTrace />
+                    </div>
+                </Section>
+                </main>
 
-                    {/* Terminal / Footer */}
-                    <Section as="footer" className="pb-20 bg-gradient-to-t from-black to-obsidian !pl-8 lg:!pl-8" id="terminal">
-                        <CommandTerminal theme={theme} onThemeChange={setTheme} />
-                    </Section>
+                {/* Terminal / Footer */}
+                <Section as="footer" className="pb-20 bg-gradient-to-t from-black to-obsidian !pl-8 lg:!pl-8" id="terminal">
+                    <CommandTerminal theme={theme} onThemeChange={setTheme} />
+                </Section>
 
-                    {/* Vim Command Palette */}
-                    <VimCommandPalette
-                        isOpen={showCommandPalette}
-                        onClose={() => setShowCommandPalette(false)}
-                        onThemeChange={setTheme}
-                    />
-                </motion.div>
-            )}
+                {/* Vim Command Palette */}
+                <VimCommandPalette
+                    isOpen={showCommandPalette}
+                    onClose={() => setShowCommandPalette(false)}
+                    onThemeChange={setTheme}
+                />
+            </motion.div>
         </>
     );
 };
