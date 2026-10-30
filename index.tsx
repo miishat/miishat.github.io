@@ -8,14 +8,14 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Layers, Activity, ChevronDown, Dices, Network, ArrowRightLeft, Shield } from 'lucide-react';
+import { Zap, Layers, Activity, Dices, Network, ArrowRightLeft, Shield } from 'lucide-react';
 
 // --- Context & Data ---
 import { SignalContext, SignalType, TargetRegistry } from './src/context/SignalContext';
 
 // --- UI Components ---
 import CustomCursor from './src/components/ui/CustomCursor';
-import MagneticWrapper from './src/components/ui/MagneticWrapper';
+import ScrollCue from './src/components/ui/ScrollCue';
 import ChipLoader from './src/components/ui/ChipLoader';
 import SectionHeader from './src/components/ui/SectionHeader';
 import VimCommandPalette from './src/components/ui/VimCommandPalette';
@@ -259,16 +259,7 @@ const AppContent = () => {
                             </React.Suspense>
                         )}
 
-                        <motion.div
-                            animate={{ y: [0, 10, 0] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                            className="absolute bottom-10 z-20 pointer-events-auto cursor-pointer"
-                            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-                        >
-                            <MagneticWrapper>
-                                <ChevronDown className="text-gray-500 hover:text-white transition-colors w-8 h-8" />
-                            </MagneticWrapper>
-                        </motion.div>
+                        <ScrollCue />
                     </Section>
 
                     <main>
