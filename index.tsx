@@ -339,7 +339,7 @@ const AppContent = () => {
 
                     <main>
                         {/* Verification Logic Section */}
-                        <Section className="relative overflow-hidden py-32" id="verification">
+                        <Section fill={false} className="relative overflow-hidden py-32" id="verification">
 
                         <div className="grid lg:grid-cols-12 gap-12 max-w-7xl w-full items-start z-10 relative">
 
@@ -411,7 +411,7 @@ const AppContent = () => {
                     </Section>
 
                     {/* Skills Coverage Dashboard */}
-                    <Section className="relative overflow-hidden py-32" id="coverage">
+                    <Section fill={false} className="relative overflow-hidden py-32" id="coverage">
                         <div className="max-w-6xl w-full z-10 relative">
                             <SectionHeader
                                 icon={Layers}
@@ -441,11 +441,11 @@ const AppContent = () => {
                         </div>
                     </Section>
 
-                    {/* Side Projects (floorplan) */}
+                    {/* Spare Cycles: side projects floorplan */}
                     <SideProjectsSection />
 
                     {/* Experience Timeline */}
-                    <Section className="relative py-32" id="trace">
+                    <Section fill={false} className="relative py-32" id="trace">
                         <div className="max-w-5xl w-full z-10">
                             <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-12 gap-4">
                                 <SectionHeader

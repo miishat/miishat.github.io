@@ -1,6 +1,6 @@
 /**
  * @file SideProjectsSection.tsx
- * @description Side projects drawn as IP blocks on a chip floorplan.
+ * @description "Spare Cycles": side projects drawn as IP blocks on a chip floorplan.
  * Selecting a block zooms it across most of the die to show its details,
  * while the other blocks shrink into a column. Phones get a stacked list instead.
  * @module Components/Features
@@ -183,9 +183,9 @@ const ProjectList = () => (
 
 export default function SideProjectsSection() {
     return (
-        <Section className="relative overflow-x-clip py-28" id="projects">
+        <Section fill={false} className="relative overflow-x-clip py-32" id="projects">
             <div className="max-w-7xl w-full z-10 relative">
-                <SectionHeader icon={FolderGit2} title="Side Projects" subtitle="module after_hours;" />
+                <SectionHeader icon={FolderGit2} title="Spare Cycles" subtitle="fork side_projects(); join_none;" />
                 <Floorplan />
                 <ProjectList />
             </div>
