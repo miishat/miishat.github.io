@@ -103,7 +103,7 @@ export default function MarkedPackageHero({ tooltip, setTooltip }: MarkedPackage
                             <Cpu className="w-5 h-5" /> SYSTEM_ON_CHIP :: VERIFICATION
                         </div>
                         <CyberText text="MISHAT" />
-                        <div className="-mt-1 text-2xl font-sans font-medium text-gray-300">Senior Design Verification Engineer</div>
+                        <div className="-mt-1 text-2xl font-sans font-bold text-gray-300">Senior Design Verification Engineer</div>
                         <div className="text-2xl font-sans font-bold text-pcbgold">@ Marvell Technology</div>
 
                         <div className="mt-8 h-12 flex items-center pointer-events-none">

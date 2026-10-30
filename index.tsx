@@ -8,14 +8,13 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, Zap, Layers, Activity, ChevronDown, Dices, Network, ArrowRightLeft, Shield } from 'lucide-react';
+import { Zap, Layers, Activity, ChevronDown, Dices, Network, ArrowRightLeft, Shield } from 'lucide-react';
 
 // --- Context & Data ---
 import { SignalContext, SignalType, TargetRegistry } from './src/context/SignalContext';
 
 // --- UI Components ---
 import CustomCursor from './src/components/ui/CustomCursor';
-import CyberText from './src/components/ui/CyberText';
 import MagneticWrapper from './src/components/ui/MagneticWrapper';
 import ChipLoader from './src/components/ui/ChipLoader';
 import SectionHeader from './src/components/ui/SectionHeader';
@@ -41,7 +40,7 @@ import CommandTerminal from './src/components/features/CommandTerminal';
 const Terminal = React.lazy(() => import('./src/components/features/Terminal'));
 
 // Lazy Load the heavy 3D Scene
-const SoCScene = React.lazy(() => import('./src/components/features/SoCScene'));
+const NocMorphHero = React.lazy(() => import('./src/components/features/NocMorphHero'));
 const BreadboardHero = React.lazy(() => import('./src/components/features/BreadboardHero'));
 
 /**
@@ -230,6 +229,7 @@ const AppContent = () => {
                     className="bg-obsidian text-white selection:bg-electric selection:text-white transition-colors duration-500 relative min-h-screen overflow-x-hidden"
                 >
 
+
                     {/* Custom Hardware Probe Cursor */}
                     <CustomCursor />
 
@@ -250,64 +250,9 @@ const AppContent = () => {
                                 <BreadboardHero tooltip={tooltip} setTooltip={setTooltip} />
                             </React.Suspense>
                         ) : (
-                            <>
-                            <div
-                                className="absolute inset-0 z-0"
-                                style={{
-                                    maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-                                    WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
-                                }}
-                            >
-                                <React.Suspense fallback={<ChipLoader />}>
-                                    <SoCScene setTooltip={setTooltip} theme={theme} />
-                                </React.Suspense>
-                            </div>
-
-                            <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center -translate-y-28">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 1 }}
-                                    className="text-center"
-                                >
-                                    <div className="flex items-center justify-center gap-2 mb-4">
-                                        <Cpu className="text-electric w-6 h-6 animate-pulse" />
-                                        <span className="font-mono text-electric tracking-widest text-sm">SYSTEM_ON_CHIP :: VERIFICATION</span>
-                                    </div>
-
-                                    <CyberText text="MISHAT" />
-
-                                    <p className={`font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap text-gray-400 text-lg md:text-xl font-medium`}>
-                                        Senior Design Verification Engineer <span className="text-pcbgold font-bold">@ Marvell Technology</span>
-                                    </p>
-
-                                    <div className="h-12 mt-8 flex justify-center items-center">
-                                        {tooltip ? (
-                                            <motion.div
-                                                key={tooltip}
-                                                initial={{ opacity: 0, scale: 0.9 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full font-mono text-sm text-electric shadow-[0_0_15px_rgba(0,243,255,0.2)]"
-                                            >
-                                                {tooltip}
-                                            </motion.div>
-                                        ) : (
-                                            <span className="text-gray-700 text-xs font-mono animate-pulse">Initialize hover sequence on SoC...</span>
-                                        )}
-                                    </div>
-
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ duration: 1 }}
-                                        className="mt-8 text-[10px] text-gray-400 font-mono"
-                                    >
-                                        Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
-                                    </motion.div>
-
-                                </motion.div>
-                            </div>
-                            </>
+                            <React.Suspense fallback={<ChipLoader />}>
+                                <NocMorphHero tooltip={tooltip} setTooltip={setTooltip} />
+                            </React.Suspense>
                         )}
 
                         <motion.div
