@@ -448,6 +448,9 @@ export default function NocMorphHero({ setTooltip, tooltip }: Props) {
     const target = useRef(0);
     const [split, setSplit] = useState(false);
 
+    // Tells ClockProbeBackdrop to swap the page background when the hero splits
+    useEffect(() => { window.dispatchEvent(new CustomEvent('hero-split', { detail: split })); }, [split]);
+
     useEffect(() => {
         const check = () => setIsMobile(window.innerWidth < 1024);
         check();
