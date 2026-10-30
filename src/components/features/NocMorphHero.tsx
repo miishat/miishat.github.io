@@ -61,6 +61,9 @@ const fpWorld = (fx: number, fy: number, y = 0): V3 => [(fx - 0.5) * DIE, y, (fy
 const rectPts = (x: number, y: number, w: number, h: number, yy = 0.06): V3[] =>
     [fpWorld(x, y, yy), fpWorld(x + w, y, yy), fpWorld(x + w, y + h, yy), fpWorld(x, y + h, yy), fpWorld(x, y, yy)];
 
+const IP_OUTLINES: V3[][] = IPS.map(ip => rectPts(...FLOORPLAN[ip.key]));
+const MISC_OUTLINES: V3[][] = MISC_BLOCKS.map(b => rectPts(...b));
+
 /** Gold fan-out traces from the die edge to the package edge, 14 per side. */
 const FAN_OUT: V3[][] = (() => {
     const out: V3[][] = [];
@@ -149,8 +152,8 @@ const Hologram = ({ setTooltip }: { setTooltip: Props['setTooltip'] }) => {
                 <Edges color={C.cyan} />
             </mesh>
             {FAN_OUT.map((pts, i) => <Line key={i} points={pts} color={C.gold} lineWidth={1} transparent opacity={0.45} />)}
-            {IPS.map(ip => <Line key={ip.key} points={rectPts(...FLOORPLAN[ip.key])} color={IP_COLOR[ip.key]} lineWidth={1.6} />)}
-            {MISC_BLOCKS.map((b, i) => <Line key={i} points={rectPts(...b)} color={C.ink} lineWidth={1} dashed dashSize={0.05} gapSize={0.04} transparent opacity={0.6} />)}
+            {IPS.map((ip, i) => <Line key={ip.key} points={IP_OUTLINES[i]} color={IP_COLOR[ip.key]} lineWidth={1.6} />)}
+            {MISC_OUTLINES.map((pts, i) => <Line key={i} points={pts} color={C.ink} lineWidth={1} dashed dashSize={0.05} gapSize={0.04} transparent opacity={0.6} />)}
             {BLOCK_DETAIL.map((pts, i) => <Line key={i} points={pts} color={C.cyan} lineWidth={0.8} transparent opacity={0.3} />)}
             {ROUTES.map((r, i) => <Pulse key={i} route={r} speed={0.18 + i * 0.03} offset={i * 0.21} color={[C.cyan, C.gold, C.purple][i % 3]} />)}
             <group ref={scan} position={[0, 0.08, 0]}>
@@ -311,23 +314,30 @@ const SHRINK = 0.15;      // end state: scene scaled down by this much
 const MESH_SCALE = 0.6;   // the mesh's final scale
 const MORPH_SECONDS = 1.6;
 
-/** Scales every material under a group to `a` of its own opacity, and hides the group (and its hit areas) near zero. */
+/**
+ * Scales every material under a group to `a` of its own opacity, and hides the group
+ * (and its hit areas) near zero. Materials are switched to transparent the first time
+ * they are seen, which happens on the first frame, so the morph itself never triggers
+ * a material update.
+ */
 const fadeGroup = (g: THREE.Object3D | null, a: number) => {
     if (!g) return;
     g.visible = a > 0.02;
     g.traverse((o: any) => {
         const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
         mats.forEach((m: any) => {
-            if (m.userData.baseOpacity === undefined) { m.userData.baseOpacity = m.opacity ?? 1; m.userData.baseTransparent = m.transparent; }
-            const transparent = a < 0.999 || m.userData.baseTransparent;
-            if (m.transparent !== transparent) { m.transparent = transparent; m.needsUpdate = true; }
+            if (m.userData.baseOpacity === undefined) {
+                m.userData.baseOpacity = m.opacity ?? 1;
+                if (!m.transparent) { m.transparent = true; m.needsUpdate = true; }
+            }
             m.opacity = m.userData.baseOpacity * a;
         });
     });
 };
 
-const MorphScene = ({ target, instant, setTooltip }: { target: React.MutableRefObject<number>; instant: boolean; setTooltip: Props['setTooltip'] }) => {
-    const { camera, size } = useThree();
+const MorphScene = React.memo(({ target, instant, setTooltip }: { target: React.MutableRefObject<number>; instant: boolean; setTooltip: Props['setTooltip'] }) => {
+    const { camera, size, gl, scene } = useThree();
+    const warmFrames = useRef(0);
     const progress = useRef(0);
     const reveal = useRef(0);
     const spin = useRef<THREE.Group>(null), scale = useRef<THREE.Group>(null);
@@ -336,6 +346,12 @@ const MorphScene = ({ target, instant, setTooltip }: { target: React.MutableRefO
     useEffect(() => () => (camera as THREE.PerspectiveCamera).clearViewOffset(), [camera]);
 
     useFrame((_, dt) => {
+        // On the second frame (after fadeGroup has set up the materials), show both states
+        // and compile their shaders, so the first click doesn't stall on shader compilation.
+        if (warmFrames.current < 2 && ++warmFrames.current === 2 && holo.current && mesh.current) {
+            holo.current.visible = mesh.current.visible = true;
+            gl.compile(scene, camera);
+        }
         if (spin.current) spin.current.rotation.y += dt * SPIN;
         // advance toward the target at a fixed rate, then smoothstep
         const d = target.current - progress.current;
@@ -365,7 +381,7 @@ const MorphScene = ({ target, instant, setTooltip }: { target: React.MutableRefO
             </group>
         </Float>
     );
-};
+});
 
 // ---------------------------------------------------------------------------
 // Copy
