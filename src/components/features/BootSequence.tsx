@@ -5,7 +5,7 @@
  * @module Components/Features
  * @author Mishat
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // Utility toHex was used here, let's include it or import it.
 // It was defined in index.tsx: const toHex = (num: number) => num.toString(16).toUpperCase().padStart(4, '0');
@@ -13,7 +13,8 @@ const toHex = (num: number) => num.toString(16).toUpperCase().padStart(4, '0');
 
 /**
  * Simulates a hardware bootup sequence with scrolling log text.
- * Blocks the main UI until the "boot" is complete.
+ * Blocks the main UI until the "boot" is complete, or until the user
+ * clicks or presses a key to skip it.
  */
 const BootSequence = ({ onComplete }: { onComplete: () => void }) => {
     const [lines, setLines] = useState<string[]>([]);
@@ -31,17 +32,35 @@ const BootSequence = ({ onComplete }: { onComplete: () => void }) => {
         "LOADING PORTFOLIO V2.0..."
     ];
 
+    const doneRef = useRef(false);
+
     useEffect(() => {
+        // Guard so a skip and the natural finish never both fire onComplete
+        const finish = () => {
+            if (doneRef.current) return;
+            doneRef.current = true;
+            onComplete();
+        };
+
+        const timers: number[] = [];
         let delay = 0;
         bootLog.forEach((line, index) => {
             delay += Math.random() * 300 + 100;
-            setTimeout(() => {
+            timers.push(window.setTimeout(() => {
                 setLines(prev => [...prev, line]);
                 if (index === bootLog.length - 1) {
-                    setTimeout(onComplete, 800);
+                    timers.push(window.setTimeout(finish, 800));
                 }
-            }, delay);
+            }, delay));
         });
+
+        window.addEventListener('keydown', finish);
+        window.addEventListener('pointerdown', finish);
+        return () => {
+            timers.forEach(clearTimeout);
+            window.removeEventListener('keydown', finish);
+            window.removeEventListener('pointerdown', finish);
+        };
     }, []);
 
     return (
@@ -53,6 +72,9 @@ const BootSequence = ({ onComplete }: { onComplete: () => void }) => {
                 </div>
             ))}
             <div className="text-electric animate-pulse mt-2">_</div>
+            <div className="absolute bottom-6 right-8 text-gray-500 text-xs">
+                Press any key or click to skip
+            </div>
         </div>
     );
 };

@@ -91,7 +91,13 @@ const AppContent = () => {
     const [tooltip, setTooltip] = useState<string | null>(null);
     const [signals, setSignals] = useState<SignalType[]>([]);
     const [activeHits, setActiveHits] = useState<Set<string>>(new Set());
-    const [bootComplete, setBootComplete] = useState(false);
+    // Boot plays once per tab session, and never for reduced-motion users
+    const [bootComplete, setBootComplete] = useState(() => {
+        try {
+            if (sessionStorage.getItem('portfolio-booted') === '1') return true;
+        } catch (e) {}
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    });
     const [viewMode, setViewMode] = useState<'log' | 'wave'>('log');
     const [theme, setTheme] = useState<'default' | 'silicon' | 'light'>(() => {
         if (typeof window !== 'undefined') {
@@ -101,6 +107,13 @@ const AppContent = () => {
     });
     const [showMobileWarning, setShowMobileWarning] = useState(false);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
+
+    const finishBoot = useCallback(() => {
+        try {
+            sessionStorage.setItem('portfolio-booted', '1');
+        } catch (e) {}
+        setBootComplete(true);
+    }, []);
 
     useEffect(() => {
         // Simple check for mobile width
@@ -239,7 +252,7 @@ const AppContent = () => {
                 )}
                 {!bootComplete && !showMobileWarning && (
                     <motion.div exit={{ opacity: 0 }} transition={{ duration: 1 }}>
-                        <BootSequence onComplete={() => setBootComplete(true)} />
+                        <BootSequence onComplete={finishBoot} />
                     </motion.div>
                 )}
                 {bootComplete && theme === 'light' && (
