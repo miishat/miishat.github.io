@@ -7,10 +7,9 @@
  * @module Components/Features
  * @author Mishat
  */
-import React, { useEffect, useRef, useState, createRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap } from 'lucide-react';
-import { useSignal } from '../../context/SignalContext';
 import { TRACE_DATA, PRESENT } from '../../data/traceData';
 import SectionHeader from '../ui/SectionHeader';
 
@@ -111,27 +110,24 @@ const SpanBar = ({ e }: { e: Entry }) => (
 
 interface LogEntryProps {
     entry: Entry;
-    targetRef: React.RefObject<HTMLDivElement | null>;
-    isHit: boolean;
     isLast: boolean;
     selected: boolean;
     onSelect: () => void;
     onShowWave: () => void;
 }
 
-const LogEntry = ({ entry: e, targetRef, isHit, isLast, selected, onSelect, onShowWave }: LogEntryProps) => {
+const LogEntry = ({ entry: e, isLast, selected, onSelect, onShowWave }: LogEntryProps) => {
     const color = TYPE_COLOR[e.type];
-    const lit = selected || isHit;
     return (
-        <div ref={targetRef} className="relative pl-10 pb-8">
+        <div className="relative pl-10 pb-8">
             {!isLast && <span className="absolute left-[7px] top-4 bottom-0 w-[2px] bg-gray-800" />}
             <span className="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 transition-all"
-                style={{ borderColor: color, background: lit ? color : 'var(--color-obsidian)', boxShadow: lit ? `0 0 12px ${color}` : 'none' }} />
+                style={{ borderColor: color, background: selected ? color : 'var(--color-obsidian)', boxShadow: selected ? `0 0 12px ${color}` : 'none' }} />
             {isOngoing(e) && <span className="absolute left-0 top-1.5 w-4 h-4 rounded-full animate-ping" style={{ background: rgba(color, 0.4) }} />}
 
             <div onClick={onSelect}
                 className="cursor-pointer rounded-lg border p-5 transition-colors"
-                style={{ borderColor: lit ? 'var(--color-electric)' : 'var(--color-gray-800)', background: lit ? 'var(--color-gray-900)' : 'transparent' }}>
+                style={{ borderColor: selected ? 'var(--color-electric)' : 'var(--color-gray-800)', background: selected ? 'var(--color-gray-900)' : 'transparent' }}>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs">
                     <span className="text-electric text-sm">{formatRange(e)}</span>
                     <span className="px-1.5 rounded border" style={{ color, borderColor: rgba(color, 0.5) }}>{TYPE_TAG[e.type]}</span>
@@ -288,12 +284,6 @@ const Waveform = ({ cursor, setCursor, selected, onPick }: WaveformProps) => {
 // --- Section -------------------------------------------------------------------
 
 const ExecutionTrace = () => {
-    const { registerTarget, activeHits } = useSignal();
-    // One stable ref per entry, registered once in TRACE_DATA order so signal
-    // packets can target log entries by index (`trace-${i}`) across view switches
-    const targetRefs = useRef(TRACE_DATA.map(() => createRef<HTMLDivElement>()));
-    useEffect(() => { targetRefs.current.forEach(ref => registerTarget('trace', ref)); }, []);
-
     const [mode, setMode] = useState<Mode>('log');
     const [selected, setSelected] = useState<number | null>(TRACE_DATA[0].id);
     const [cursor, setCursor] = useState(midOf(TRACE_DATA[0]));
@@ -310,7 +300,7 @@ const ExecutionTrace = () => {
                     {mode === 'log' ? (
                         <div className="ml-2 md:ml-8 mt-4">
                             {TRACE_DATA.map((e, i) => (
-                                <LogEntry key={e.id} entry={e} targetRef={targetRefs.current[i]} isHit={activeHits.has(`trace-${i}`)}
+                                <LogEntry key={e.id} entry={e}
                                     isLast={i === TRACE_DATA.length - 1} selected={selected === e.id}
                                     onSelect={() => select(e)} onShowWave={() => { select(e); setMode('wave'); }} />
                             ))}

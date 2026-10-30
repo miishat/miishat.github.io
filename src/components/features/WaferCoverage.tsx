@@ -9,7 +9,6 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { useInView, useReducedMotion } from 'framer-motion';
-import { useSignal } from '../../context/SignalContext';
 import { SKILLS, OVERALL_YIELD } from '../../data/skillsData';
 
 const GRID = 15;        // dies per wafer row
@@ -193,7 +192,7 @@ const Wafer = ({ skill, tested, probe, focus, onHover, onPick }: {
 };
 
 /**
- * A slot in the rack. Registers itself as a signal target, same contract as the old SkillNode.
+ * A slot in the rack.
  */
 const Slot = ({ index, active, fill, label, dim, onClick, onHover }: {
     index: number;
@@ -204,21 +203,14 @@ const Slot = ({ index, active, fill, label, dim, onClick, onHover }: {
     onClick: () => void;
     onHover?: (hovering: boolean) => void;
 }) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const { registerTarget, activeHits } = useSignal();
-    useEffect(() => {
-        registerTarget('skills', ref);
-    }, []);
-    const isHit = activeHits.has(`skill-${index}`);
     const s = SKILLS[index];
 
     return (
         <div
-            ref={ref}
             onClick={onClick}
             onMouseEnter={onHover && (() => onHover(true))}
             onMouseLeave={onHover && (() => onHover(false))}
-            className={`grid grid-cols-[2rem_1fr_3.5rem] items-center gap-3 px-2 py-2 rounded cursor-pointer border transition-colors ${active || isHit ? 'border-electric' : 'border-transparent hover:border-gray-700'}`}
+            className={`grid grid-cols-[2rem_1fr_3.5rem] items-center gap-3 px-2 py-2 rounded cursor-pointer border transition-colors ${active ? 'border-electric' : 'border-transparent hover:border-gray-700'}`}
         >
             <span className="font-mono text-[10px] text-gray-600">S{String(index + 1).padStart(2, '0')}</span>
             <div className="flex flex-col gap-1.5">

@@ -1,17 +1,15 @@
 /**
  * @file index.tsx
  * @description Main entry point for the Portfolio Application.
- * Orchestrates the full-page layout, initializes the theme, and manages the global signal visual system.
+ * Orchestrates the full-page layout, initializes the theme.
  * 
  * @author Mishat
  */
-import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Layers, Activity, Dices, Network, ArrowRightLeft, Shield } from 'lucide-react';
 
-// --- Context & Data ---
-import { SignalContext, SignalType, TargetRegistry } from './src/context/SignalContext';
 
 // --- UI Components ---
 import CustomCursor from './src/components/ui/CustomCursor';
@@ -27,11 +25,9 @@ import VimGutter from './src/components/layout/VimGutter';
 // --- Feature Components ---
 import BootSequence from './src/components/features/BootSequence';
 import MobileWarning from './src/components/features/MobileWarning';
-import MethodologyCard from './src/components/features/MethodologyCard';
 import WaferCoverage from './src/components/features/WaferCoverage';
 import ExecutionTrace from './src/components/features/ExecutionTrace';
 import MarkedPackageHero from './src/components/features/MarkedPackageHero';
-import SignalPacket from './src/components/features/SignalPacket';
 import SideProjectsSection from './src/components/features/SideProjectsSection';
 import VerificationCoreSection from './src/components/features/VerificationCoreSection';
 import CommandTerminal from './src/components/features/CommandTerminal';
@@ -49,15 +45,13 @@ const BreadboardHero = React.lazy(() => import('./src/components/features/Breadb
  * Main Application Component.
  * 
  * Responsibilities:
- * - Manages global state (tooltip, signals, hits)
+ * - Manages global state (tooltip, boot, theme)
  * - Implements Vim-style keyboard navigation (j, k, G, gg)
  * - Handles theme switching (silicon/light/default)
  * - Renders the main sections (Hero, Verification, Coverage, Trace, Terminal)
  */
 const AppContent = () => {
     const [tooltip, setTooltip] = useState<string | null>(null);
-    const [signals, setSignals] = useState<SignalType[]>([]);
-    const [activeHits, setActiveHits] = useState<Set<string>>(new Set());
     // Boot plays once per tab session, and never for reduced-motion users
     const [bootComplete, setBootComplete] = useState(() => {
         try {
@@ -86,43 +80,6 @@ const AppContent = () => {
         if (window.innerWidth < 768) {
             setShowMobileWarning(true);
         }
-    }, []);
-
-    // Registry refs
-    const targets = useRef<TargetRegistry>({ skills: [], trace: [] });
-
-    // Helper functions for Context
-    const registerTarget = useCallback((type: 'skills' | 'trace', ref: React.RefObject<HTMLDivElement | null>) => {
-        if (!targets.current[type].includes(ref)) {
-            targets.current[type].push(ref);
-        }
-    }, []);
-
-    const emitSignal = useCallback((rect: DOMRect, color: string) => {
-        const id = Math.random().toString(36).substr(2, 9);
-        const startX = rect.left + rect.width / 2;
-        const startY = rect.top + rect.height / 2;
-
-        setSignals(prev => [...prev, { id, startX, startY, color }]);
-
-        setTimeout(() => {
-            setSignals(prev => prev.filter(s => s.id !== id));
-        }, 2500);
-    }, []);
-
-    const hitTarget = useCallback((id: string) => {
-        setActiveHits(prev => {
-            const newSet = new Set(prev);
-            newSet.add(id);
-            return newSet;
-        });
-        setTimeout(() => {
-            setActiveHits(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(id);
-                return newSet;
-            });
-        }, 500);
     }, []);
 
     // Vim Navigation Logic
@@ -196,15 +153,8 @@ const AppContent = () => {
         }
     }, [theme]);
 
-    const signalContextValue = useMemo(() => ({
-        registerTarget,
-        emitSignal,
-        hitTarget,
-        activeHits
-    }), [registerTarget, emitSignal, hitTarget, activeHits]);
-
     return (
-        <SignalContext.Provider value={signalContextValue}>
+        <>
             <AnimatePresence>
                 {showMobileWarning && (
                     <motion.div
@@ -238,11 +188,6 @@ const AppContent = () => {
 
                     {/* Custom Hardware Probe Cursor */}
                     <CustomCursor />
-
-                    {/* Signal Overlay */}
-                    {signals.map(s => (
-                        <SignalPacket key={s.id} signal={s} targets={targets.current} onHit={hitTarget} />
-                    ))}
 
                     {/* Vim Gutter (Left Side) */}
                     <VimGutter />
@@ -305,7 +250,7 @@ const AppContent = () => {
                     />
                 </motion.div>
             )}
-        </SignalContext.Provider>
+        </>
     );
 };
 
