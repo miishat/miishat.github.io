@@ -47,7 +47,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         facts: [
             { label: 'Up to', value: '1.6T' },
             { label: 'Depth', value: 'MAC→PAM4' },
-            { label: 'Backend', value: 'None' },
+            { label: 'Walkthrough', value: '9 stages' },
         ],
         repo: 'https://github.com/miishat/ethernet-onboarding',
         area: { col: '1 / 3', row: '1 / 2' },
@@ -63,12 +63,13 @@ export const SIDE_PROJECTS: SideProject[] = [
         summary: 'Quickly analyze Ethernet Auto-negotiation Base Pages and Next Pages.',
         highlights: [
             'Decodes Auto-negotiation Base Pages and Next Pages.',
+            'Compare mode decodes two pages side by side and flags every field that differs.',
             'Runs entirely in the browser.',
         ],
         facts: [
             { label: 'Protocol', value: 'Ethernet AN' },
             { label: 'Pages', value: 'Base + Next' },
-            { label: 'Backend', value: 'None' },
+            { label: 'Abilities', value: 'to 800G' },
         ],
         repo: 'https://github.com/miishat/AN-Page-Analyzer',
         area: { col: '1 / 3', row: '2 / 3' },
@@ -84,6 +85,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         summary: 'Reusable Design Verification patterns that turn tribal DV intuition into explicit, searchable verification strategies.',
         highlights: [
             'Captures verification strategies as reusable, searchable patterns.',
+            'Each pattern pairs its common failure modes with the assertions, tests and coverage that catch them.',
             'Installable as a PWA.',
         ],
         facts: [
@@ -108,8 +110,8 @@ export const SIDE_PROJECTS: SideProject[] = [
             'Optional Google Drive sync between your own devices, using the narrow drive.file scope.',
         ],
         facts: [
-            { label: 'Backend', value: 'None' },
-            { label: 'Telemetry', value: 'None' },
+            { label: 'Forecast', value: 'Monte Carlo' },
+            { label: 'Themes', value: '6' },
             { label: 'Sync', value: 'Opt-in' },
         ],
         repo: 'https://github.com/miishat/ledger',
@@ -151,7 +153,7 @@ export const SIDE_PROJECTS: SideProject[] = [
             'Installable PWA.',
         ],
         facts: [
-            { label: 'Accounts', value: 'None' },
+            { label: 'Tools', value: '1RM + Plates' },
             { label: 'Storage', value: 'Local' },
             { label: 'Install', value: 'PWA' },
         ],
@@ -198,7 +200,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         facts: [
             { label: 'Views', value: '4' },
             { label: 'Install', value: 'PWA' },
-            { label: 'Backend', value: 'None' },
+            { label: 'Palette', value: 'Ctrl+K' },
         ],
         repo: 'https://github.com/miishat/Stuff',
         live: 'https://miishat.github.io/Stuff/',
