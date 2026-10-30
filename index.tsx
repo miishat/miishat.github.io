@@ -339,7 +339,7 @@ const AppContent = () => {
 
                     <main>
                         {/* Verification Logic Section */}
-                        <Section fill={false} className="relative overflow-hidden py-48" id="verification">
+                        <Section fill={false} className="relative overflow-hidden pt-[28rem] pb-48" id="verification">
 
                         <div className="grid lg:grid-cols-12 gap-12 max-w-7xl w-full items-start z-10 relative">
 
