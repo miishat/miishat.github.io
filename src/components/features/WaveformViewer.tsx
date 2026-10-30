@@ -7,15 +7,15 @@
  * @author Mishat
  */
 import React, { useState, useRef } from 'react';
-import { TRACE_DATA } from '../../data/traceData';
+import { TRACE_DATA, PRESENT } from '../../data/traceData';
 
 // Month names for formatting
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
 /**
  * Formats a decimal year to a readable month/year string.
- * @param decimalYear - Year as decimal (e.g., 2025.5 for June 2025)
- * @returns Formatted string (e.g., "June 2025")
+ * @param decimalYear - Year as decimal (e.g., 2026.5 for June 2026)
+ * @returns Formatted string (e.g., "June 2026")
  */
 const formatDecimalYear = (decimalYear: number): string => {
     const year = Math.floor(decimalYear);
@@ -53,12 +53,12 @@ const clockPath = `M 0 10 ` + Array.from({ length: clockCycles }).map((_, i) => 
  * Supports zooming (visual only) and time cursor navigation.
  */
 const WaveformViewer = ({ theme }: { theme: 'default' | 'silicon' | 'light' }) => {
-    const [cursorTime, setCursorTime] = useState<number>(2026.0);
+    const [cursorTime, setCursorTime] = useState<number>(PRESENT);
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Config
     const startYear = 2017;
-    const endYear = 2026;
+    const endYear = Math.ceil(PRESENT);
     const duration = endYear - startYear;
 
     // Active Data based on cursor

@@ -5,6 +5,10 @@
  * @author Mishat
  */
 
+/** Today as a decimal year, so an ongoing role always ends at "Present" */
+const now = new Date();
+export const PRESENT = now.getFullYear() + (now.getMonth() + 1) / 12;
+
 /**
  * Career history data entries.
  * @property {number} id - Unique ID
@@ -16,7 +20,7 @@ export const TRACE_DATA = [
     {
         id: 0,
         start: 2025.41, // May 2025
-        end: 2026.0,   // Present
+        end: PRESENT,
         title: "Senior Design Verification Engineer",
         company: "Marvell Technology",
         school: "",
@@ -40,7 +44,7 @@ export const TRACE_DATA = [
     {
         id: 2,
         start: 2022.75, // Sept 2022
-        end: 2023.25,   // March 2023
+        end: 2023.08,   // Jan 2023
         title: "Design Verification Engineer Intern",
         company: "Marvell Technology",
         school: "",

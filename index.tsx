@@ -8,11 +8,10 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, Zap, Layers, Activity, ChevronDown, Dices, Network, ArrowRightLeft, Play, List, Shield } from 'lucide-react';
+import { Cpu, Zap, Layers, Activity, ChevronDown, Dices, Network, ArrowRightLeft, Shield } from 'lucide-react';
 
 // --- Context & Data ---
 import { SignalContext, SignalType, TargetRegistry } from './src/context/SignalContext';
-import { TRACE_DATA } from './src/data/traceData';
 
 // --- UI Components ---
 import CustomCursor from './src/components/ui/CustomCursor';
@@ -32,52 +31,16 @@ import BootSequence from './src/components/features/BootSequence';
 import MobileWarning from './src/components/features/MobileWarning';
 import MethodologyCard from './src/components/features/MethodologyCard';
 import WaferCoverage from './src/components/features/WaferCoverage';
-import TimelineItem from './src/components/features/TimelineItem';
+import ExecutionTrace from './src/components/features/ExecutionTrace';
 import SignalPacket from './src/components/features/SignalPacket';
 import SideProjectsSection from './src/components/features/SideProjectsSection';
 import VerificationCoreSection from './src/components/features/VerificationCoreSection';
 
 // --- Lazy Loaded Components ---
-const WaveformViewer = React.lazy(() => import('./src/components/features/WaveformViewer'));
 const Terminal = React.lazy(() => import('./src/components/features/Terminal'));
 
 // Lazy Load the heavy 3D Scene
 const SoCScene = React.lazy(() => import('./src/components/features/SoCScene'));
-
-/**
- * Converts a decimal year to a formatted month/year string.
- * @param decimalYear - Year as decimal (e.g., 2025.41 for May 2025)
- * @param isPresent - If true, returns "Present" instead of the date
- * @returns Formatted date string (e.g., "May 2025")
- */
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-
-const formatDecimalYear = (decimalYear: number, isPresent = false): string => {
-    if (isPresent) return 'Present';
-    const year = Math.floor(decimalYear);
-    const monthDecimal = (decimalYear - year) * 12;
-    const monthIndex = Math.round(monthDecimal) - 1;
-    // Clamp to valid month range
-    const safeMonthIndex = Math.max(0, Math.min(11, monthIndex < 0 ? 0 : monthIndex));
-    return `${MONTH_NAMES[safeMonthIndex]} ${year}`;
-};
-
-/**
- * Formats a date range from trace data entry.
- * @param start - Start decimal year
- * @param end - End decimal year
- * @returns Formatted date range (e.g., "May 2025 - Present")
- */
-const formatDateRange = (start: number, end: number): string => {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1; // 1-indexed
-    const currentDecimal = currentYear + (currentMonth / 12);
-
-    // If end date is close to or beyond current date, show "Present"
-    const isPresent = end >= currentDecimal - 0.1;
-
-    return `${formatDecimalYear(start)} - ${formatDecimalYear(end, isPresent)}`;
-};
 
 /**
  * Main Application Component.
@@ -99,7 +62,6 @@ const AppContent = () => {
         } catch (e) {}
         return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     });
-    const [viewMode, setViewMode] = useState<'log' | 'wave'>('log');
     const [theme, setTheme] = useState<'default' | 'silicon' | 'light'>(() => {
         if (typeof window !== 'undefined') {
             return (localStorage.getItem('portfolio-theme') as 'default' | 'silicon' | 'light') || 'default';
@@ -374,60 +336,7 @@ const AppContent = () => {
                     {/* Experience Timeline */}
                     <Section fill={false} className="relative py-48" id="trace">
                         <div className="max-w-5xl w-full z-10">
-                            <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-12 gap-4">
-                                <SectionHeader
-                                    icon={Zap}
-                                    title="Execution Trace"
-                                    subtitle='$monitor("Career Log: %t", $time);'
-                                    className="mb-0"
-                                />
-
-                                <button
-                                    onClick={() => setViewMode(prev => prev === 'log' ? 'wave' : 'log')}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-700 border border-gray-700 rounded-lg transition-all text-sm font-mono group"
-                                >
-                                    {viewMode === 'log' ? (
-                                        <>
-                                            <Play size={16} className="text-electric group-hover:fill-electric" />
-                                            <span className="text-gray-300 group-hover:text-white">View Waveform</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <List size={16} className="text-gray-400" />
-                                            <span className="text-gray-300 group-hover:text-white">View Log</span>
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-
-                            {viewMode === 'log' ? (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="ml-4 md:ml-12 mt-8"
-                                >
-                                    {TRACE_DATA.map((item, i) => (
-                                        <TimelineItem
-                                            key={item.id}
-                                            index={i}
-                                            year={formatDateRange(item.start, item.end)}
-                                            title={item.title}
-                                            company={item.company || item.school}
-                                            degree={item.degree}
-                                            description={item.description}
-                                        />
-                                    ))}
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                >
-                                    <React.Suspense fallback={<div className="h-64 flex items-center justify-center text-electric font-mono text-sm">LOADING_WAVEFORMS...</div>}>
-                                        <WaveformViewer theme={theme} />
-                                    </React.Suspense>
-                                </motion.div>
-                            )}
+                            <ExecutionTrace />
                         </div>
                     </Section>
                     </main>
