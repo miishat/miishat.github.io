@@ -32,6 +32,7 @@ import MobileWarning from './src/components/features/MobileWarning';
 import MethodologyCard from './src/components/features/MethodologyCard';
 import WaferCoverage from './src/components/features/WaferCoverage';
 import ExecutionTrace from './src/components/features/ExecutionTrace';
+import MarkedPackageHero from './src/components/features/MarkedPackageHero';
 import SignalPacket from './src/components/features/SignalPacket';
 import SideProjectsSection from './src/components/features/SideProjectsSection';
 import VerificationCoreSection from './src/components/features/VerificationCoreSection';
@@ -245,62 +246,68 @@ const AppContent = () => {
 
                     {/* Hero Section */}
                     <Section as="header" className="h-screen overflow-hidden relative !pl-8 lg:!pl-8" id="top">
-                        <div
-                            className="absolute inset-0 z-0"
-                            style={{
-                                maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-                                WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
-                            }}
-                        >
-                            <React.Suspense fallback={<ChipLoader />}>
-                                <SoCScene setTooltip={setTooltip} theme={theme} />
-                            </React.Suspense>
-                        </div>
-
-                        <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center -translate-y-28">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 1 }}
-                                className="text-center"
+                        {theme === 'silicon' ? (
+                            <MarkedPackageHero tooltip={tooltip} setTooltip={setTooltip} />
+                        ) : (
+                            <>
+                            <div
+                                className="absolute inset-0 z-0"
+                                style={{
+                                    maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
+                                    WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
+                                }}
                             >
-                                <div className="flex items-center justify-center gap-2 mb-4">
-                                    <Cpu className="text-electric w-6 h-6 animate-pulse" />
-                                    <span className="font-mono text-electric tracking-widest text-sm">SYSTEM_ON_CHIP :: VERIFICATION</span>
-                                </div>
+                                <React.Suspense fallback={<ChipLoader />}>
+                                    <SoCScene setTooltip={setTooltip} theme={theme} />
+                                </React.Suspense>
+                            </div>
 
-                                <CyberText text="MISHAT" />
-
-                                <p className={`font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap ${theme === 'silicon' ? 'text-gray-400 text-sm md:text-base tracking-widest' : 'text-gray-400 text-lg md:text-xl font-medium'}`}>
-                                    Senior Design Verification Engineer <span className="text-pcbgold font-bold">@ Marvell Technology</span>
-                                </p>
-
-                                <div className="h-12 mt-8 flex justify-center items-center">
-                                    {tooltip ? (
-                                        <motion.div
-                                            key={tooltip}
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full font-mono text-sm text-electric shadow-[0_0_15px_rgba(0,243,255,0.2)]"
-                                        >
-                                            {tooltip}
-                                        </motion.div>
-                                    ) : (
-                                        <span className="text-gray-700 text-xs font-mono animate-pulse">Initialize hover sequence on SoC...</span>
-                                    )}
-                                </div>
-
+                            <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center -translate-y-28">
                                 <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 1 }}
-                                    className="mt-8 text-[10px] text-gray-400 font-mono"
+                                    className="text-center"
                                 >
-                                    Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
-                                </motion.div>
+                                    <div className="flex items-center justify-center gap-2 mb-4">
+                                        <Cpu className="text-electric w-6 h-6 animate-pulse" />
+                                        <span className="font-mono text-electric tracking-widest text-sm">SYSTEM_ON_CHIP :: VERIFICATION</span>
+                                    </div>
 
-                            </motion.div>
-                        </div>
+                                    <CyberText text="MISHAT" />
+
+                                    <p className={`font-light max-w-3xl mx-auto px-4 mt-2 whitespace-nowrap text-gray-400 text-lg md:text-xl font-medium`}>
+                                        Senior Design Verification Engineer <span className="text-pcbgold font-bold">@ Marvell Technology</span>
+                                    </p>
+
+                                    <div className="h-12 mt-8 flex justify-center items-center">
+                                        {tooltip ? (
+                                            <motion.div
+                                                key={tooltip}
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full font-mono text-sm text-electric shadow-[0_0_15px_rgba(0,243,255,0.2)]"
+                                            >
+                                                {tooltip}
+                                            </motion.div>
+                                        ) : (
+                                            <span className="text-gray-700 text-xs font-mono animate-pulse">Initialize hover sequence on SoC...</span>
+                                        )}
+                                    </div>
+
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 1 }}
+                                        className="mt-8 text-[10px] text-gray-400 font-mono"
+                                    >
+                                        Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
+                                    </motion.div>
+
+                                </motion.div>
+                            </div>
+                            </>
+                        )}
 
                         <motion.div
                             animate={{ y: [0, 10, 0] }}
