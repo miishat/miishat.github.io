@@ -413,18 +413,19 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
                     className={`flex flex-col ${split ? 'items-start text-left' : 'items-center text-center'}`}
                     style={{ textShadow: '0 0 14px var(--color-obsidian), 0 0 4px var(--color-obsidian), 0 2px 2px var(--color-obsidian)' }}
                 >
-                    <motion.div {...row} className="flex items-center gap-2 mb-4">
+                    <motion.div {...row} className="flex items-center gap-2 mb-2.5">
                         <Cpu className="text-electric w-6 h-6 animate-pulse" />
                         <span className="font-mono text-electric tracking-widest text-sm">SYSTEM_ON_CHIP :: VERIFICATION</span>
                     </motion.div>
-                    <motion.div {...row}><CyberText text="MISHAT" /></motion.div>
+                    {/* CyberText's h1 carries mb-4; -mb-0.5 trims the name-to-role gap to 14px */}
+                    <motion.div {...row} className="-mb-0.5"><CyberText text="MISHAT" /></motion.div>
                     {/* Over the hologram the role sits on a dark band; it fades out over the mesh.
                         -mx-4 cancels the band padding so the text stays aligned in both states. */}
                     <motion.p {...row}
-                        className={`max-w-3xl mt-2 -mx-4 px-4 py-1 rounded-md whitespace-nowrap text-lg md:text-xl font-bold transition-colors duration-[1600ms] ${split ? 'text-gray-400 bg-transparent' : 'text-gray-100 bg-obsidian/75'}`}>
+                        className={`max-w-3xl -mx-4 px-4 py-1 rounded-md whitespace-nowrap text-lg md:text-xl font-bold transition-colors duration-[1600ms] ${split ? 'text-gray-400 bg-transparent' : 'text-gray-100 bg-obsidian/75'}`}>
                         Senior Design Verification Engineer <span className="text-pcbgold font-bold">@ Marvell Technology</span>
                     </motion.p>
-                    <motion.div {...row} className="mt-8 h-12 flex items-center">
+                    <motion.div {...row} className="mt-4 h-12 flex items-center">
                         {tooltip ? (
                             <motion.div
                                 key={tooltip}
@@ -438,7 +439,7 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
                             <span className="text-gray-700 text-xs font-mono animate-pulse">{hint}</span>
                         )}
                     </motion.div>
-                    <motion.div {...row} className="mt-8 text-[10px] text-gray-400 font-mono">
+                    <motion.div {...row} className="mt-4 text-[10px] text-gray-400 font-mono">
                         Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
                     </motion.div>
                 </motion.div>
