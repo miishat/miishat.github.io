@@ -183,7 +183,7 @@ const ProjectList = () => (
 
 export default function SideProjectsSection() {
     return (
-        <Section fill={false} className="relative overflow-x-clip py-32" id="projects">
+        <Section fill={false} className="relative overflow-x-clip py-48" id="projects">
             <div className="max-w-7xl w-full z-10 relative">
                 <SectionHeader icon={FolderGit2} title="Spare Cycles" subtitle="fork side_projects(); join_none;" />
                 <Floorplan />
