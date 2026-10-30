@@ -378,13 +378,23 @@
             --color-gray-800: #0a2a0a;
             --color-gray-900: #051505;
 
+            /* RtlRainBackdrop draws the page background */
             background-color: #000500;
-            /* Schematic Grid + Power Rails */
-            background-image:
-                linear-gradient(rgba(57, 255, 20, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(57, 255, 20, 0.15) 1px, transparent 1px),
-                linear-gradient(rgba(57, 255, 20, 0.1) 2px, transparent 2px);
-            background-size: 20px 20px, 20px 20px, 100% 80px;
+        }
+
+        /* Over RtlRainBackdrop the footer fades to black instead of cutting it off, and the
+           translucent cards (whose /opacity classes don't render with the theme's CSS-variable
+           colours) get a near-opaque phosphor-black fill and a blur, as in the Default theme. */
+        body.theme-silicon #terminal {
+            background: linear-gradient(to top, #000500 0%, rgba(0, 5, 0, 0.85) 30%, rgba(0, 8, 0, 0) 100%) !important;
+        }
+        body.theme-silicon main :is([class*=" bg-gray-900/"], [class^="bg-gray-900/"], [class*=" bg-obsidian/"], [class^="bg-obsidian/"]),
+        body.theme-silicon #trace .cursor-pointer.rounded-lg[style*="background: transparent"] {
+            background-color: rgba(0, 14, 2, 0.92) !important;
+            backdrop-filter: blur(6px);
+        }
+        body.theme-silicon main [class*="hover:bg-gray-800/"]:hover {
+            background-color: rgba(0, 32, 6, 0.96) !important;
         }
 
         body.theme-silicon * {

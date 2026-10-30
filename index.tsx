@@ -36,6 +36,7 @@ import SideProjectsSection from './src/components/features/SideProjectsSection';
 import VerificationCoreSection from './src/components/features/VerificationCoreSection';
 import CommandTerminal from './src/components/features/CommandTerminal';
 import ClockProbeBackdrop from './src/components/features/ClockProbeBackdrop';
+import RtlRainBackdrop from './src/components/features/RtlRainBackdrop';
 
 // --- Lazy Loaded Components ---
 const Terminal = React.lazy(() => import('./src/components/features/Terminal'));
@@ -233,6 +234,7 @@ const AppContent = () => {
 
                     {/* Default theme page background: clock tree, then a probed board once the hero splits */}
                     {theme === 'default' && <ClockProbeBackdrop />}
+                    {theme === 'silicon' && <RtlRainBackdrop />}
 
                     {/* Custom Hardware Probe Cursor */}
                     <CustomCursor />
