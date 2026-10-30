@@ -35,6 +35,7 @@ import ExecutionTrace from './src/components/features/ExecutionTrace';
 import SignalPacket from './src/components/features/SignalPacket';
 import SideProjectsSection from './src/components/features/SideProjectsSection';
 import VerificationCoreSection from './src/components/features/VerificationCoreSection';
+import CommandTerminal from './src/components/features/CommandTerminal';
 
 // --- Lazy Loaded Components ---
 const Terminal = React.lazy(() => import('./src/components/features/Terminal'));
@@ -343,17 +344,7 @@ const AppContent = () => {
 
                     {/* Terminal / Footer */}
                     <Section as="footer" className="pb-20 bg-gradient-to-t from-black to-obsidian !pl-8 lg:!pl-8" id="terminal">
-                        <div className="max-w-4xl w-full z-10 text-center mb-12">
-                            <h2 className="text-3xl font-bold mb-4">Run Simulation</h2>
-                            <p className="text-gray-400 mb-8">Access my contact info, download my resume, change themes, and more.</p>
-                            <React.Suspense fallback={<div className="h-96 flex items-center justify-center text-electric font-mono text-sm">BOOTING_TERMINAL...</div>}>
-                                <Terminal onThemeChange={setTheme} />
-                            </React.Suspense>
-                        </div>
-
-                        <footer className="absolute bottom-8 md:bottom-12 text-gray-600 text-sm font-mono">
-                            © {new Date().getFullYear()} Mishat. Designed inside the silicon.
-                        </footer>
+                        <CommandTerminal theme={theme} onThemeChange={setTheme} />
                     </Section>
 
                     {/* Vim Command Palette */}
