@@ -8,17 +8,17 @@
 export interface Skill {
     name: string;
     level: number;
-    /** Die colour on the wafer and fill colour of the slot bar */
+    /** Die colour on the wafer and fill colour of the slot bar; a theme's --series-N */
     color: string;
 }
 
 export const SKILLS: Skill[] = [
-    { name: 'SystemVerilog', level: 95, color: '#00f3ff' },
-    { name: 'UVM Framework', level: 90, color: '#00ff41' },
-    { name: 'Python / Scripting', level: 85, color: '#d4af37' },
-    { name: 'Ethernet / COMPHY', level: 80, color: '#b026ff' },
-    { name: 'Verdi / DVE', level: 88, color: '#ff6b35' },
-    { name: 'Formal (JasperGold)', level: 75, color: '#ff2d95' },
+    { name: 'SystemVerilog', level: 95, color: 'var(--series-1)' },
+    { name: 'UVM Framework', level: 90, color: 'var(--series-2)' },
+    { name: 'Python / Scripting', level: 85, color: 'var(--series-3)' },
+    { name: 'Ethernet / COMPHY', level: 80, color: 'var(--series-4)' },
+    { name: 'Verdi / DVE', level: 88, color: 'var(--series-5)' },
+    { name: 'Formal (JasperGold)', level: 75, color: 'var(--series-6)' },
 ];
 
 /** Mean coverage across all skills, shown as the lot's Overall Yield */

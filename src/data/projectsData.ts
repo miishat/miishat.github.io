@@ -36,7 +36,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'Ethernet Onboarding',
         kind: 'dv',
         status: 'ACTIVE',
-        accent: 'var(--color-electric)',
+        accent: 'var(--series-1)',
         stack: ['React', 'TypeScript', 'Vite'],
         summary: 'An interactive instrument for learning the high-speed Ethernet PHY stack, one sublayer at a time.',
         highlights: [
@@ -58,7 +58,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'AN Page Analyzer',
         kind: 'dv',
         status: 'STABLE',
-        accent: 'var(--color-success)',
+        accent: 'var(--series-2)',
         stack: ['React', 'TypeScript', 'Tailwind'],
         summary: 'Quickly analyze Ethernet Auto-negotiation Base Pages and Next Pages.',
         highlights: [
@@ -80,7 +80,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'DV Knowledge Base',
         kind: 'dv',
         status: 'STABLE',
-        accent: 'var(--color-pcbgold)',
+        accent: 'var(--series-3)',
         stack: ['React', 'TypeScript', 'Zustand', 'PWA'],
         summary: 'Reusable Design Verification patterns that turn tribal DV intuition into explicit, searchable verification strategies.',
         highlights: [
@@ -102,7 +102,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'Ledger',
         kind: 'app',
         status: 'ACTIVE',
-        accent: 'var(--color-neonpurple)',
+        accent: 'var(--series-4)',
         stack: ['React', 'TypeScript', 'Recharts', 'PWA'],
         summary: 'A private, offline-first personal finance dashboard: budgeting, investments, planning and compensation.',
         highlights: [
@@ -123,7 +123,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'CartCraft',
         kind: 'app',
         status: 'ACTIVE',
-        accent: '#ff7a59',
+        accent: 'var(--series-5)',
         stack: ['React', 'TypeScript', 'Dexie', 'PWA'],
         summary: 'Turns saved recipes into one consolidated, aisle-sorted shopping list for your phone.',
         highlights: [
@@ -145,7 +145,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'GymStack',
         kind: 'app',
         status: 'LIVE',
-        accent: '#ff3e8a',
+        accent: 'var(--series-6)',
         stack: ['React', 'TypeScript', 'Framer Motion', 'PWA'],
         summary: 'A privacy-first PWA for pure gym tracking. No clouds, no accounts, just your gains stored locally on your device.',
         highlights: [
@@ -167,7 +167,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'SeriesTrackr',
         kind: 'app',
         status: 'ACTIVE',
-        accent: '#60a5fa',
+        accent: 'var(--series-7)',
         stack: ['React', 'TypeScript', 'Node', 'Vitest', 'Playwright'],
         summary: 'Tracks the book series you are reading and finds out when the next book and its audiobook come out.',
         highlights: [
@@ -189,7 +189,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         title: 'Stuff',
         kind: 'app',
         status: 'LIVE',
-        accent: '#2dd4bf',
+        accent: 'var(--series-8)',
         stack: ['React', 'TypeScript', 'Tailwind', 'PWA'],
         summary: 'A simple task manager with Kanban boards, workspaces, custom views and a dark mode.',
         highlights: [

@@ -30,12 +30,10 @@ const shortTitle = (e: Entry) => e.title.replace('Design Verification Engineer I
 const endOf = (e: Entry) => Math.min(e.end, PRESENT);
 const midOf = (e: Entry) => e.start + (endOf(e) - e.start) / 2;
 
-const TYPE_COLOR: Record<string, string> = { WORK: '#00f3ff', INTERN: '#d4af37', EDU: '#b026ff' };
+const TYPE_COLOR: Record<string, string> = { WORK: 'var(--series-1)', INTERN: 'var(--series-3)', EDU: 'var(--series-4)' };
 const TYPE_TAG: Record<string, string> = { WORK: 'ROLE', INTERN: 'INTERN', EDU: 'EDU' };
-const rgba = (hex: string, a: number) => {
-    const n = parseInt(hex.slice(1), 16);
-    return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
-};
+/** A theme colour at alpha `a`; color-mix because the colours are CSS variables, not hex */
+const rgba = (color: string, a: number) => `color-mix(in srgb, ${color} ${a * 100}%, transparent)`;
 
 // --- Time axis ---------------------------------------------------------------
 
@@ -161,7 +159,7 @@ const BusLane = ({ segs, selected, label }: { segs: Seg[]; selected: number | nu
                     if (!s.e) return <line key={k} x1={x1} x2={x2} y1={m} y2={m} stroke="var(--color-pcbgold)" strokeOpacity={0.6} strokeDasharray="4 3" strokeWidth={1} vectorEffect="non-scaling-stroke" />;
                     const color = TYPE_COLOR[s.e.type], on = selected === s.e.id;
                     const d = `M ${x1} ${m} L ${x1 + 5} ${top} L ${x2 - 5} ${top} L ${x2} ${m} L ${x2 - 5} ${bot} L ${x1 + 5} ${bot} Z`;
-                    return <path key={k} d={d} fill={rgba(color, on ? 0.35 : 0.14)} stroke={color} strokeOpacity={on ? 1 : 0.5} strokeWidth={1} vectorEffect="non-scaling-stroke" />;
+                    return <path key={k} d={d} style={{ fill: rgba(color, on ? 0.35 : 0.14), stroke: color }} strokeOpacity={on ? 1 : 0.5} strokeWidth={1} vectorEffect="non-scaling-stroke" />;
                 })}
             </svg>
             {segs.map((s, k) => s.e && (
