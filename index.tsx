@@ -16,6 +16,7 @@ import CustomCursor from './src/components/ui/CustomCursor';
 import ScrollCue from './src/components/ui/ScrollCue';
 import ChipLoader from './src/components/ui/ChipLoader';
 import SectionHeader from './src/components/ui/SectionHeader';
+import { ThemeContext } from './src/theme';
 import VimCommandPalette from './src/components/ui/VimCommandPalette';
 
 // --- Layout Components ---
@@ -167,7 +168,7 @@ const AppContent = () => {
     }, [theme]);
 
     return (
-        <>
+        <ThemeContext.Provider value={theme}>
             <AnimatePresence>
                 {showMobileWarning && (
                     <motion.div
@@ -267,7 +268,7 @@ const AppContent = () => {
                     onThemeChange={setTheme}
                 />
             </motion.div>
-        </>
+        </ThemeContext.Provider>
     );
 };
 
