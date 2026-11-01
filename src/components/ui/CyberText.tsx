@@ -9,9 +9,10 @@ import React, { useState, useEffect } from 'react';
 
 /**
  * Text component that scrambles its characters on mount and hover.
- * Adds a "glitch" aesthetic.
+ * Adds a "glitch" aesthetic. With `decode` off it skips the mount and boot-lift scrambles,
+ * for a still copy of the same markup (the Silicon boot burns one into its package).
  */
-const CyberText = ({ text }: { text: string }) => {
+const CyberText = ({ text, decode = true }: { text: string; decode?: boolean }) => {
     const [displayText, setDisplayText] = useState(text);
     const chars = "X01";
 
@@ -35,6 +36,7 @@ const CyberText = ({ text }: { text: string }) => {
     };
 
     useEffect(() => {
+        if (!decode) return;
         scramble();
         // Decode again when the boot screen lifts, since the page mounts underneath it
         window.addEventListener('boot-done', scramble);

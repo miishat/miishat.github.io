@@ -3,6 +3,8 @@
  * @description Hero for the Silicon theme: the page title laser-marked on the lid
  * of a large QFP package that lies at the 3D chip's tilt and leans toward the mouse.
  * Each pin row is an IP block; hovering it fills the hero tooltip.
+ * The package's parts are exported so LaserMarkBootSequence can draw the same package
+ * over this one and burn its marking in.
  *
  * @author Mishat
  */
@@ -11,9 +13,9 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
 import { Cpu } from 'lucide-react';
 import CyberText from '../ui/CyberText';
 
-type Side = 'top' | 'right' | 'bottom' | 'left';
+export type Side = 'top' | 'right' | 'bottom' | 'left';
 
-const PIN_ROWS: { side: Side; label: string; desc: string }[] = [
+export const PIN_ROWS: { side: Side; label: string; desc: string }[] = [
     { side: 'top', label: 'AI Network Control', desc: 'Traffic management & control logic for AI clusters.' },
     { side: 'right', label: 'CPU & Memory', desc: 'Coherent mesh, L3 Cache & DDR controller verification.' },
     { side: 'bottom', label: 'SerDes & Ethernet', desc: 'COMPHY bringups & High-Speed I/O verification.' },
@@ -23,7 +25,7 @@ const PIN_ROWS: { side: Side; label: string; desc: string }[] = [
 const PIN_LEN = 36;   // px, how far a pin row sticks out of the body
 const PIN_INSET = 72; // px, corner clearance at each end of a row
 
-const rowPosition = (side: Side): React.CSSProperties => {
+export const rowPosition = (side: Side): React.CSSProperties => {
     switch (side) {
         case 'top': return { top: -PIN_LEN, left: PIN_INSET, right: PIN_INSET, height: PIN_LEN };
         case 'bottom': return { bottom: -PIN_LEN, left: PIN_INSET, right: PIN_INSET, height: PIN_LEN };
@@ -32,16 +34,21 @@ const rowPosition = (side: Side): React.CSSProperties => {
     }
 };
 
+/** A pin row's leads, 12px wide on a 30px pitch, in `color`. */
+export const pinLeads = (side: Side, color: string) =>
+    `repeating-linear-gradient(${side === 'top' || side === 'bottom' ? 90 : 180}deg, ${color} 0 12px, transparent 12px 30px)`;
+
+/** What the boot needs to draw over the package: the hero fills `el` with the package's plane. */
+export const markedPackage: { el: HTMLDivElement | null } = { el: null };
+
 const PinRow = ({ side, label, desc, onHover }: { side: Side; label: string; desc: string; onHover: (t: string) => void }) => {
     const [hover, setHover] = useState(false);
-    const across = side === 'top' || side === 'bottom' ? 90 : 180;
-    const color = hover ? 'var(--color-electric)' : 'var(--color-pcbgold)';
     return (
         <div
             className="absolute cursor-crosshair"
             style={{
                 ...rowPosition(side),
-                background: `repeating-linear-gradient(${across}deg, ${color} 0 12px, transparent 12px 30px)`,
+                background: pinLeads(side, hover ? 'var(--color-electric)' : 'var(--color-pcbgold)'),
                 filter: hover ? 'drop-shadow(0 0 6px var(--color-electric))' : 'none',
             }}
             onMouseEnter={() => { setHover(true); onHover(`${label}: ${desc}`); }}
@@ -49,6 +56,51 @@ const PinRow = ({ side, label, desc, onHover }: { side: Side; label: string; des
         />
     );
 };
+
+/** Package body; the stacked shadows fake its thickness. Its marking goes in as `children`. */
+export const PackageBody = ({ children }: { children: React.ReactNode }) => (
+    <div
+        className="absolute inset-0 rounded-md border border-white/[0.08]"
+        style={{
+            background: 'linear-gradient(145deg, #08080c, #020203)',
+            boxShadow: '0 6px 0 #020203, 0 12px 0 #010101, 0 40px 90px rgba(0,0,0,0.85)',
+        }}
+    >
+        {/* Moulding-compound grain and the pin 1 dimple */}
+        <div className="absolute inset-0 rounded-md opacity-[0.035]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '4px 4px' }} />
+        <span className="absolute top-8 left-8 w-7 h-7 rounded-full bg-black/50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]" />
+        {children}
+    </div>
+);
+
+/** The pin-row readout's resting text, before a row is hovered. */
+export const PIN_HINT = <span className="text-gray-700 text-xs animate-pulse">Hover a pin row...</span>;
+
+export const MARKING_LINES = 7;
+
+/**
+ * The laser marking. `line` wraps each of its MARKING_LINES lines, top to bottom, so the boot
+ * can burn them in one at a time; the name and the pin-row readout come in as nodes.
+ */
+export const Marking = ({ name, readout, line = (_i, node) => node }: {
+    name: React.ReactNode;
+    readout: React.ReactNode;
+    line?: (i: number, node: React.ReactNode) => React.ReactNode;
+}) => (
+    <div className="absolute inset-0 flex flex-col items-center justify-center text-center gap-1 font-mono">
+        {line(0, <div className="flex items-center gap-2 mb-2 text-electric text-sm tracking-[0.3em]">
+            <Cpu className="w-5 h-5" /> SYSTEM_ON_CHIP :: VERIFICATION
+        </div>)}
+        {line(1, name)}
+        {line(2, <div className="-mt-1 text-2xl font-sans font-bold text-gray-300">Senior Design Verification Engineer</div>)}
+        {line(3, <div className="text-2xl font-sans font-bold text-pcbgold">@ Marvell Technology</div>)}
+        {line(4, <div className="mt-8 h-12 flex items-center pointer-events-none">{readout}</div>)}
+        {line(5, <div className="mt-6 text-xs tracking-[0.25em] text-gray-500">MRVL-DV · 2026 · REV 4'h3 · CANADA</div>)}
+        {line(6, <div className="mt-6 text-[10px] text-gray-400">
+            Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
+        </div>)}
+    </div>
+);
 
 interface MarkedPackageHeroProps {
     tooltip: string | null;
@@ -77,6 +129,7 @@ export default function MarkedPackageHero({ tooltip, setTooltip }: MarkedPackage
     return (
         <div className="absolute inset-0 z-0 flex items-center justify-center -translate-y-16">
             <motion.div
+                ref={el => { markedPackage.el = el; }}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1 }}
@@ -85,48 +138,21 @@ export default function MarkedPackageHero({ tooltip, setTooltip }: MarkedPackage
             >
                 {PIN_ROWS.map(row => <PinRow key={row.side} {...row} onHover={setTooltip} />)}
 
-                {/* Package body; the stacked shadows fake its thickness */}
-                <div
-                    className="absolute inset-0 rounded-md border border-white/[0.08]"
-                    style={{
-                        background: 'linear-gradient(145deg, #08080c, #020203)',
-                        boxShadow: '0 6px 0 #020203, 0 12px 0 #010101, 0 40px 90px rgba(0,0,0,0.85)',
-                    }}
-                >
-                    {/* Moulding-compound grain and the pin 1 dimple */}
-                    <div className="absolute inset-0 rounded-md opacity-[0.035]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '4px 4px' }} />
-                    <span className="absolute top-8 left-8 w-7 h-7 rounded-full bg-black/50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]" />
-
-                    {/* Laser marking */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center gap-1 font-mono">
-                        <div className="flex items-center gap-2 mb-2 text-electric text-sm tracking-[0.3em]">
-                            <Cpu className="w-5 h-5" /> SYSTEM_ON_CHIP :: VERIFICATION
-                        </div>
-                        <CyberText text="MISHAT" />
-                        <div className="-mt-1 text-2xl font-sans font-bold text-gray-300">Senior Design Verification Engineer</div>
-                        <div className="text-2xl font-sans font-bold text-pcbgold">@ Marvell Technology</div>
-
-                        <div className="mt-8 h-12 flex items-center pointer-events-none">
-                            {tooltip ? (
-                                <motion.div
-                                    key={tooltip}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full text-sm text-electric shadow-[0_0_15px_rgba(0,243,255,0.2)]"
-                                >
-                                    {tooltip}
-                                </motion.div>
-                            ) : (
-                                <span className="text-gray-700 text-xs animate-pulse">Hover a pin row...</span>
-                            )}
-                        </div>
-
-                        <div className="mt-6 text-xs tracking-[0.25em] text-gray-500">MRVL-DV · 2026 · REV 4'h3 · CANADA</div>
-                        <div className="mt-6 text-[10px] text-gray-400">
-                            Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
-                        </div>
-                    </div>
-                </div>
+                <PackageBody>
+                    <Marking
+                        name={<CyberText text="MISHAT" />}
+                        readout={tooltip ? (
+                            <motion.div
+                                key={tooltip}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full text-sm text-electric shadow-[0_0_15px_rgba(0,243,255,0.2)]"
+                            >
+                                {tooltip}
+                            </motion.div>
+                        ) : PIN_HINT}
+                    />
+                </PackageBody>
             </motion.div>
         </div>
     );

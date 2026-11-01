@@ -23,9 +23,9 @@ import Section from './src/components/layout/Section';
 import VimGutter from './src/components/layout/VimGutter';
 
 // --- Feature Components ---
-import BootSequence from './src/components/features/BootSequence';
 import ChipBootSequence from './src/components/features/ChipBootSequence';
 import BreadboardBootSequence from './src/components/features/BreadboardBootSequence';
+import LaserMarkBootSequence from './src/components/features/LaserMarkBootSequence';
 import MobileWarning from './src/components/features/MobileWarning';
 import WaferCoverage from './src/components/features/WaferCoverage';
 import ExecutionTrace from './src/components/features/ExecutionTrace';
@@ -69,8 +69,8 @@ const AppContent = () => {
     });
     const [showMobileWarning, setShowMobileWarning] = useState(false);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
-    // Default and Light draw their hero and hand over to it; Silicon keeps the POST log
-    const BootView = theme === 'default' ? ChipBootSequence : theme === 'light' ? BreadboardBootSequence : BootSequence;
+    // Each theme draws its hero and hands over to it
+    const BootView = theme === 'default' ? ChipBootSequence : theme === 'light' ? BreadboardBootSequence : LaserMarkBootSequence;
 
     const finishBoot = useCallback(() => {
         try {
@@ -182,8 +182,9 @@ const AppContent = () => {
                 {!bootComplete && !showMobileWarning && (
                     <motion.div
                         className="fixed inset-0 z-[90]"
-                        exit={{ opacity: 0, scale: 1.06, filter: 'blur(10px)' }}
-                        transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+                        // Silicon's boot ends lying exactly on the hero, so it just lifts
+                        exit={theme === 'silicon' ? { opacity: 0 } : { opacity: 0, scale: 1.06, filter: 'blur(10px)' }}
+                        transition={{ duration: theme === 'silicon' ? 0.3 : 0.8, ease: [0.4, 0, 0.2, 1] }}
                     >
                         <BootView onComplete={finishBoot} />
                     </motion.div>
