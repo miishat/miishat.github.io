@@ -25,6 +25,7 @@ import VimGutter from './src/components/layout/VimGutter';
 // --- Feature Components ---
 import BootSequence from './src/components/features/BootSequence';
 import ChipBootSequence from './src/components/features/ChipBootSequence';
+import BreadboardBootSequence from './src/components/features/BreadboardBootSequence';
 import MobileWarning from './src/components/features/MobileWarning';
 import WaferCoverage from './src/components/features/WaferCoverage';
 import ExecutionTrace from './src/components/features/ExecutionTrace';
@@ -68,8 +69,8 @@ const AppContent = () => {
     });
     const [showMobileWarning, setShowMobileWarning] = useState(false);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
-    // The Default theme draws its hero chip and hands over to it; the other heroes keep the POST log
-    const BootView = theme === 'default' ? ChipBootSequence : BootSequence;
+    // Default and Light draw their hero and hand over to it; Silicon keeps the POST log
+    const BootView = theme === 'default' ? ChipBootSequence : theme === 'light' ? BreadboardBootSequence : BootSequence;
 
     const finishBoot = useCallback(() => {
         try {

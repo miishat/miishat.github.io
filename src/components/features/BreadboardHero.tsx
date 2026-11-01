@@ -6,12 +6,13 @@
  *
  * @author Mishat
  */
-import React, { useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import CyberText from '../ui/CyberText';
+import { lightBoard } from './lightBoard';
 
 type Props = { setTooltip: (t: string | null) => void; tooltip: string | null };
 type V3 = [number, number, number];
@@ -141,7 +142,7 @@ const Dip = ({ x, n, ip, sub, setTooltip, bob = false, phase = 0 }: {
     useFrame(({ clock }) => {
         if (!g.current) return;
         let target = hover ? 0.32 : 0;
-        if (bob && !hover) {
+        if (bob && !hover && !lightBoard.booting) {
             const t = (clock.elapsedTime * 0.2 + phase) % 1;
             target = t < 0.14 ? Math.sin((t / 0.14) * Math.PI) * 0.5 : 0;
         }
@@ -269,8 +270,10 @@ const Lean = ({ children, amt = 0.12 }: { children: React.ReactNode; amt?: numbe
     const ref = useRef<THREE.Group>(null);
     useFrame(({ pointer }) => {
         if (!ref.current) return;
-        ref.current.rotation.x = THREE.MathUtils.lerp(ref.current.rotation.x, -pointer.y * amt, 0.05);
-        ref.current.rotation.y = THREE.MathUtils.lerp(ref.current.rotation.y, pointer.x * amt, 0.05);
+        // level while booting, so the boot's drawing lands on a still bench
+        const k = lightBoard.booting ? 0 : amt;
+        ref.current.rotation.x = THREE.MathUtils.lerp(ref.current.rotation.x, -pointer.y * k, 0.05);
+        ref.current.rotation.y = THREE.MathUtils.lerp(ref.current.rotation.y, pointer.x * k, 0.05);
     });
     return <group ref={ref}>{children}</group>;
 };
@@ -283,35 +286,78 @@ const SoftLights = () => (
     </>
 );
 
-/** The bench: three IP chips, tall side arcs framing the name, low wires under it. */
-const Bench = ({ setTooltip }: { setTooltip: Props['setTooltip'] }) => {
-    const K = 64, h = (c: number, r: number) => hole(K, c, r);
-    const W = C.wires;
-    return (
-        <group>
-            <Breadboard cols={K} />
-            <Dip x={colX(K, 15 + 3.5)} n={8} ip={AI} sub="U1" setTooltip={setTooltip} />
-            <Dip x={colX(K, 28 + 4)} n={9} ip={CPU} sub="U2" setTooltip={setTooltip} bob phase={0.3} />
-            <Dip x={colX(K, 42 + 3.5)} n={8} ip={SERDES} sub="U3" setTooltip={setTooltip} />
-            {/* tall arcs up both sides, a gate the name stands in */}
-            <Jumper a={h(1, -5.5)} b={h(16, -4.5)} h={3.4} color={W.coral} pulse={0} ip={AI} setTooltip={setTooltip} r={0.036} />
-            <Jumper a={h(4, 4.5)} b={h(13, 3.5)} h={2.5} color={W.mustard} pulse={1} r={0.036} />
-            <Jumper a={h(7, -3.5)} b={h(10, -2.5)} h={1.4} color={W.sage} r={0.036} />
-            <Jumper a={h(47, -4.5)} b={h(62, -5.5)} h={3.4} color={W.blue} pulse={2} ip={SERDES} setTooltip={setTooltip} r={0.036} />
-            <Jumper a={h(50, 3.5)} b={h(59, 4.5)} h={2.5} color={W.lilac} pulse={3} r={0.036} />
-            <Jumper a={h(53, -2.5)} b={h(56, -3.5)} h={1.4} color={W.coral} r={0.036} />
-            {/* low wires under the name */}
-            <Jumper a={h(20, -3.5)} b={h(30, -3.5)} h={0.45} color={W.lilac} pulse={4} ip={CPU} setTooltip={setTooltip} r={0.034} />
-            <Jumper a={h(34, 3.5)} b={h(44, 3.5)} h={0.45} color={W.sage} pulse={5} r={0.034} />
-            <Jumper a={h(18, 4.5)} b={h(46, 5.5)} h={0.7} color={W.blue} r={0.034} />
-            {[3, 22, 40, 60].map((c, i) => <Jumper key={c} a={h(c, i % 2 ? 8 : -8)} b={h(c, i % 2 ? 5.5 : -5.5)} h={0.18} color={i % 2 ? W.blue : W.coral} />)}
-            <Led pos={h(25, -2.5)} color="#e7a08f" />
-            <Led pos={h(38, -2.5)} color="#9cc7a5" phase={1.2} />
-            <Resistor pos={h(23, 4.5)} span={4} />
-            <Resistor pos={h(37, 5.5)} span={4} bands={['#6e8cc8', '#222', '#a0522d', C.gold]} />
-        </group>
-    );
+/** The bench's layout, shared by the scene and the boot bridge. */
+const K = 64;
+const bh = (c: number, r: number) => hole(K, c, r);
+const W = C.wires;
+const CHIPS = [
+    { col: 15 + 3.5, n: 8, ip: AI, sub: 'U1' },
+    { col: 28 + 4, n: 9, ip: CPU, sub: 'U2', bob: true, phase: 0.3 },
+    { col: 42 + 3.5, n: 8, ip: SERDES, sub: 'U3' },
+];
+const WIRES: { a: V3; b: V3; h: number; color: string; pulse?: number; ip?: IP; r?: number }[] = [
+    // tall arcs up both sides, a gate the name stands in
+    { a: bh(1, -5.5), b: bh(16, -4.5), h: 3.4, color: W.coral, pulse: 0, ip: AI, r: 0.036 },
+    { a: bh(4, 4.5), b: bh(13, 3.5), h: 2.5, color: W.mustard, pulse: 1, r: 0.036 },
+    { a: bh(7, -3.5), b: bh(10, -2.5), h: 1.4, color: W.sage, r: 0.036 },
+    { a: bh(47, -4.5), b: bh(62, -5.5), h: 3.4, color: W.blue, pulse: 2, ip: SERDES, r: 0.036 },
+    { a: bh(50, 3.5), b: bh(59, 4.5), h: 2.5, color: W.lilac, pulse: 3, r: 0.036 },
+    { a: bh(53, -2.5), b: bh(56, -3.5), h: 1.4, color: W.coral, r: 0.036 },
+    // low wires under the name
+    { a: bh(20, -3.5), b: bh(30, -3.5), h: 0.45, color: W.lilac, pulse: 4, ip: CPU, r: 0.034 },
+    { a: bh(34, 3.5), b: bh(44, 3.5), h: 0.45, color: W.sage, pulse: 5, r: 0.034 },
+    { a: bh(18, 4.5), b: bh(46, 5.5), h: 0.7, color: W.blue, r: 0.034 },
+    ...[3, 22, 40, 60].map((c, i) => ({ a: bh(c, i % 2 ? 8 : -8), b: bh(c, i % 2 ? 5.5 : -5.5), h: 0.18, color: i % 2 ? W.blue : W.coral })),
+];
+const LEDS = [{ pos: bh(25, -2.5), color: '#e7a08f' }, { pos: bh(38, -2.5), color: '#9cc7a5', phase: 1.2 }];
+
+// The boot draws the bench from these, so they match the scene part for part
+lightBoard.scene = (() => {
+    const w = boardW(K) / 2, d = BOARD_D / 2, top = 0.06 + 0.13;
+    const rail = (row: number, color: string) => ({ color, a: [-w + P, 0, row * P] as V3, b: [w - P, 0, row * P] as V3 });
+    return {
+        board: [[-w, 0, -d], [w, 0, -d], [w, 0, d], [-w, 0, d]],
+        rails: [rail(-8.8, C.red), rail(-6.25, C.blue), rail(6.25, C.red), rail(8.8, C.blue)],
+        chips: CHIPS.map(c => {
+            const x = colX(K, c.col), L = (c.n * P - 0.03) / 2, H = 0.22;
+            return { sig: c.ip.sig, sub: c.sub, quad: [[x - L, top, -H], [x + L, top, -H], [x + L, top, H], [x - L, top, H]] as V3[] };
+        }),
+        wires: WIRES.map(j => ({ color: j.color, r: j.r ?? 0.028, pts: jumperCurve(j.a, j.b, j.h).getSpacedPoints(40).map(v => [v.x, v.y, v.z] as V3) })),
+        leds: LEDS.map(l => ({ color: l.color, pos: [l.pos[0] + P / 2, 0.3, l.pos[2]] as V3 })),
+    };
+})();
+
+/** Publishes the bench-to-page projection for the boot, measured where the bench actually sits. */
+const BootBridge = () => {
+    const ref = useRef<THREE.Group>(null);
+    const { camera, gl } = useThree();
+    useEffect(() => () => { lightBoard.project = null; lightBoard.frame = null; }, []);
+    useFrame(() => {
+        const g = ref.current;
+        if (!g || lightBoard.project) return;
+        const v = new THREE.Vector3();
+        lightBoard.frame = () => gl.domElement.getBoundingClientRect();
+        lightBoard.project = p => {
+            const r = gl.domElement.getBoundingClientRect();
+            v.set(...p).applyMatrix4(g.matrixWorld).project(camera);
+            return [r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height];
+        };
+    });
+    return <group ref={ref} />;
 };
+
+/** The bench: three IP chips, tall side arcs framing the name, low wires under it. */
+const Bench = ({ setTooltip }: { setTooltip: Props['setTooltip'] }) => (
+    <group>
+        <BootBridge />
+        <Breadboard cols={K} />
+        {CHIPS.map(c => <Dip key={c.sub} x={colX(K, c.col)} n={c.n} ip={c.ip} sub={c.sub} setTooltip={setTooltip} bob={c.bob} phase={c.phase} />)}
+        {WIRES.map((j, i) => <Jumper key={i} {...j} setTooltip={j.ip && setTooltip} />)}
+        {LEDS.map((l, i) => <Led key={i} {...l} />)}
+        <Resistor pos={bh(23, 4.5)} span={4} />
+        <Resistor pos={bh(37, 5.5)} span={4} bands={['#6e8cc8', '#222', '#a0522d', C.gold]} />
+    </group>
+);
 
 // ---------------------------------------------------------------------------
 // Hero copy
