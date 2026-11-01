@@ -106,6 +106,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         stack: ['React', 'TypeScript', 'Recharts', 'PWA'],
         summary: 'A private, offline-first personal finance dashboard: budgeting, investments, planning and compensation.',
         highlights: [
+            'Monte Carlo forecasting for long-range planning, with six themes to choose from.',
             'Everything is stored in your own browser: no backend, no account, no telemetry.',
             'Optional Google Drive sync between your own devices, using the narrow drive.file scope.',
         ],
@@ -149,6 +150,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         stack: ['React', 'TypeScript', 'Framer Motion', 'PWA'],
         summary: 'A privacy-first PWA for pure gym tracking. No clouds, no accounts, just your gains stored locally on your device.',
         highlights: [
+            'Built-in one-rep-max and plate calculators for planning your lifts.',
             'No cloud and no accounts: workouts stay on your device.',
             'Installable PWA.',
         ],
