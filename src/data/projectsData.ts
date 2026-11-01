@@ -101,7 +101,7 @@ export const SIDE_PROJECTS: SideProject[] = [
         code: 'APP_01',
         title: 'Ledger',
         kind: 'app',
-        status: 'ACTIVE',
+        status: 'LIVE',
         accent: 'var(--series-4)',
         stack: ['React', 'TypeScript', 'Recharts', 'PWA'],
         summary: 'A private, offline-first personal finance dashboard: budgeting, investments, planning and compensation.',
@@ -116,6 +116,7 @@ export const SIDE_PROJECTS: SideProject[] = [
             { label: 'Sync', value: 'Opt-in' },
         ],
         repo: 'https://github.com/miishat/ledger',
+        live: 'https://miishat.github.io/ledger/',
         area: { col: '5 / 7', row: '1 / 2' },
     },
     {
