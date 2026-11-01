@@ -55,13 +55,10 @@ const BreadboardHero = React.lazy(() => import('./src/components/features/Breadb
  */
 const AppContent = () => {
     const [tooltip, setTooltip] = useState<string | null>(null);
-    // Boot plays once per tab session, and never for reduced-motion users
-    const [bootComplete, setBootComplete] = useState(() => {
-        try {
-            if (sessionStorage.getItem('portfolio-booted') === '1') return true;
-        } catch (e) {}
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    });
+    // Boot plays on every load, but never for reduced-motion users
+    const [bootComplete, setBootComplete] = useState(() =>
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
     const [theme, setTheme] = useState<'default' | 'silicon' | 'light'>(() => {
         if (typeof window !== 'undefined') {
             return (localStorage.getItem('portfolio-theme') as 'default' | 'silicon' | 'light') || 'default';
@@ -74,9 +71,6 @@ const AppContent = () => {
     const BootView = theme === 'default' ? ChipBootSequence : theme === 'light' ? BreadboardBootSequence : LaserMarkBootSequence;
 
     const finishBoot = useCallback(() => {
-        try {
-            sessionStorage.setItem('portfolio-booted', '1');
-        } catch (e) {}
         setBootComplete(true);
         // Lets the already-mounted hero replay its intro as the boot screen lifts
         window.dispatchEvent(new Event('boot-done'));
