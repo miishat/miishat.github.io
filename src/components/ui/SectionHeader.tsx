@@ -5,7 +5,7 @@
  * gold pad by two thin rays; the subtitle is the net label beside the pad.
  * Silicon: an off-page port tag carrying the title, feeding a bus that runs across the page;
  * the subtitle is the bus's net name and `aside` sits where the bus ends.
- * Light: the original icon-and-title header, until it gets its own design.
+ * Light: the icon-and-title header, its subtitle led in by an LED and a resistor on a short trace.
  * @module Components/UI
  * @author Mishat
  */
@@ -142,18 +142,43 @@ const PortHeader = ({ icon: Icon, title, subtitle, className, aside }: SectionHe
     );
 };
 
-/** Light: magnetic icon box, with a "decoding" scramble on the title on hover. */
+/** Ease shared by the signal line's parts; reduced motion just shows them lit. */
+const signalTr = (prop: string, ms: number, delay = 0) =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'none' : `${prop} ${ms}ms cubic-bezier(.4,0,.2,1) ${delay}ms`;
+
+/**
+ * Light: the lead-in to the subtitle, an LED and a resistor on a short coral trace.
+ * Once in view the trace draws in, the resistor appears on it, then the LED lights.
+ */
+const SignalLine = ({ lit }: { lit: boolean }) => (
+    <svg width="62" height="14" viewBox="0 0 62 14" aria-hidden className="shrink-0 overflow-visible">
+        <circle cx="6" cy="7" r="8" fill="#6f9a7a" style={{ opacity: lit ? 0.28 : 0, transition: signalTr('opacity', 800, 700) }} />
+        <circle cx="6" cy="7" r="4.5" fill="#6f9a7a" style={{ filter: lit ? 'brightness(1.3)' : 'saturate(.3)', transition: signalTr('filter', 600, 700) }} />
+        <circle cx="4.8" cy="5.6" r="1.3" fill="#fff" opacity=".75" />
+        <line x1="11" y1="7" x2="60" y2="7" stroke="rgb(214,120,110)" strokeWidth="1.5" pathLength={1}
+            style={{ strokeDasharray: 1, strokeDashoffset: lit ? 0 : 1, transition: signalTr('stroke-dashoffset', 600) }} />
+        <g style={{ opacity: lit ? 1 : 0, transition: signalTr('opacity', 300, 300) }}>
+            <rect x="22" y="2.5" width="24" height="9" rx="4.5" fill="#e6d8b4" stroke="#c9aa6a" strokeWidth=".8" />
+            <rect x="28" y="3" width="2" height="8" fill="#9a8aa6" />
+            <rect x="33" y="3" width="2" height="8" fill="#6f9a7a" />
+            <rect x="38" y="3" width="2" height="8" fill="#c9aa6a" />
+        </g>
+    </svg>
+);
+
+/** Light: magnetic icon box, with a "decoding" scramble on the title on hover, and a signal line into the subtitle. */
 const IconHeader = ({ icon: Icon, title, subtitle, className }: SectionHeaderProps) => {
     const [displayTitle, setDisplayTitle] = useState(title);
+    const [ref, lit] = useLit<HTMLDivElement>();
 
     return (
-        <div className={`flex items-start gap-6 relative z-10 ${className}`}>
+        <div ref={ref} className={`flex items-start gap-6 relative z-10 ${className}`}>
             <MagneticWrapper strength={0.3}>
                 <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-800 text-electric relative z-20">
                     <Icon size={32} />
                 </div>
             </MagneticWrapper>
-            <div>
+            <div className="min-w-0">
                 <h2
                     className="text-4xl font-bold text-white mb-2 relative"
                     onMouseEnter={() => {
@@ -171,8 +196,9 @@ const IconHeader = ({ icon: Icon, title, subtitle, className }: SectionHeaderPro
                 >
                     {displayTitle}
                 </h2>
-                <p className="text-gray-400 font-mono text-sm pl-2">
-                    {subtitle}
+                <p className="flex items-center gap-2 text-gray-400 font-mono text-sm">
+                    <SignalLine lit={lit} />
+                    <span className="min-w-0 break-words">{subtitle}</span>
                 </p>
             </div>
         </div>

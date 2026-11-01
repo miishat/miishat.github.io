@@ -276,8 +276,10 @@
             width: 38px;
         }
 
-        /* Tree-row hover classes match the module rule, but their wires float above the section. */
-        body.theme-light .verification-topology button::before {
+        /* Tree-row hover classes match the module rule, but the rows aren't positioned, so their
+           wires and pins would float above the section header. */
+        body.theme-light .verification-topology button::before,
+        body.theme-light .verification-topology button::after {
             content: none !important;
         }
 
