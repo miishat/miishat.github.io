@@ -251,7 +251,7 @@ const AppContent = () => {
                 </main>
 
                 {/* Terminal / Footer */}
-                <Section as="footer" className="pb-20 bg-gradient-to-t from-black to-obsidian !pl-8 lg:!pl-8" id="terminal">
+                <Section as="footer" className="pb-20 bg-gradient-to-t from-black to-obsidian" id="terminal">
                     <CommandTerminal theme={theme} onThemeChange={setTheme} />
                 </Section>
 
