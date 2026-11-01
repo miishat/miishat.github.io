@@ -82,10 +82,10 @@ const AgentOverview = () => (
         {METHODOLOGIES.map(m => (
             <div
                 key={m.id}
-                className="border border-gray-800 rounded-lg bg-obsidian/60 p-4 sm:p-6 flex flex-col justify-between gap-6 min-h-[130px]"
+                className="border border-gray-800 rounded-lg bg-obsidian/60 p-4 sm:p-6 lg:p-5 flex flex-col justify-between gap-6 lg:gap-2 min-h-[130px] lg:min-h-0"
                 style={{ borderLeft: `4px solid ${m.accent}` }}
             >
-                <span className="w-12 h-12 rounded-md border flex items-center justify-center" style={{ borderColor: m.accent }}>
+                <span className="w-12 h-12 lg:w-10 lg:h-10 rounded-md border flex items-center justify-center" style={{ borderColor: m.accent }}>
                     <m.icon size={22} style={{ color: m.accent }} />
                 </span>
                 <span className="font-sans font-bold text-white text-lg sm:text-xl leading-tight">{m.title}</span>
@@ -134,8 +134,10 @@ export default function VerificationCoreSection() {
                 <div className="mt-12 w-full grid lg:grid-cols-2 gap-6 items-stretch font-mono">
                     <TopologyTree sel={sel} onSelect={setSel} />
 
-                    {/* Inspector: display-only, driven by the tree */}
-                    <aside className="border border-gray-800 rounded-lg bg-gray-900/50 backdrop-blur-md flex flex-col overflow-hidden">
+                    {/* Inspector: display-only, driven by the tree. Side by side, the tree alone sets the
+                        row height and the inspector fills it, so switching nodes never resizes the section */}
+                    <div className="relative">
+                    <aside className="lg:absolute lg:inset-0 h-full border border-gray-800 rounded-lg bg-gray-900/50 backdrop-blur-md flex flex-col overflow-hidden">
                         <div className="p-6 sm:p-8 flex-1 flex flex-col" aria-live="polite">
                             <div className="text-[11px] text-gray-500 mb-4">{node.label} : {node.type}</div>
                             {isRoot(node) ? <AgentOverview /> : node.id === 'sb' ? <Scoreboard /> : <AgentDetail node={node} />}
@@ -148,6 +150,7 @@ export default function VerificationCoreSection() {
                             <p className="font-sans text-sm text-gray-400 leading-relaxed">{PHILOSOPHY_BODY}</p>
                         </div>
                     </aside>
+                    </div>
                 </div>
             </div>
         </Section>
