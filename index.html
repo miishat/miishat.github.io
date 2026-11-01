@@ -276,10 +276,13 @@
             width: 38px;
         }
 
-        /* Tree-row hover classes match the module rule, but the rows aren't positioned, so their
-           wires and pins would float above the section header. */
+        /* Topology tree rows and the terminal's Objects rows match the module rule through their
+           hover classes, but they aren't positioned, so their wires and pins would float above the
+           section header. */
         body.theme-light .verification-topology button::before,
-        body.theme-light .verification-topology button::after {
+        body.theme-light .verification-topology button::after,
+        body.theme-light #terminal [role="tabpanel"] .group::before,
+        body.theme-light #terminal [role="tabpanel"] .group::after {
             content: none !important;
         }
 
