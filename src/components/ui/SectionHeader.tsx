@@ -3,7 +3,9 @@
  * @description Standard header for page sections, with a design per theme.
  * Default: a holographic title floating in corner brackets, projected up from a probed
  * gold pad by two thin rays; the subtitle is the net label beside the pad.
- * Silicon and Light: the original icon-and-title header, until they get their own designs.
+ * Silicon: an off-page port tag carrying the title, feeding a bus that runs across the page;
+ * the subtitle is the bus's net name and `aside` sits where the bus ends.
+ * Light: the original icon-and-title header, until it gets its own design.
  * @module Components/UI
  * @author Mishat
  */
@@ -17,7 +19,23 @@ interface SectionHeaderProps {
     title: string;
     subtitle: string;
     className?: string;
+    /** Control kept level with the title, at the far end of the header (the trace's view toggle) */
+    aside?: React.ReactNode;
 }
+
+/** Flips true once the header scrolls into view. */
+const useLit = <T extends HTMLElement>() => {
+    const ref = useRef<T>(null);
+    const [lit, setLit] = useState(false);
+    useEffect(() => {
+        const io = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting) { setLit(true); io.disconnect(); }
+        }, { threshold: 0.6 });
+        io.observe(ref.current!);
+        return () => io.disconnect();
+    }, []);
+    return [ref, lit] as const;
+};
 
 /** The two corner pairs of the hologram's frame. */
 const CORNERS = ['top-0 left-0 border-t border-l', 'top-0 right-0 border-t border-r', 'bottom-0 left-0 border-b border-l', 'bottom-0 right-0 border-b border-r'];
@@ -27,16 +45,8 @@ const CORNERS = ['top-0 left-0 border-t border-l', 'top-0 right-0 border-t borde
  * the probe's needle tip and the rays both start there.
  */
 const ProjectedHeader = ({ icon: Icon, title, subtitle, className }: SectionHeaderProps) => {
-    const ref = useRef<HTMLDivElement>(null);
-    // Flips once the header scrolls into view: the hologram flickers on and the rays fade in
-    const [lit, setLit] = useState(false);
-    useEffect(() => {
-        const io = new IntersectionObserver(([e]) => {
-            if (e.isIntersecting) { setLit(true); io.disconnect(); }
-        }, { threshold: 0.6 });
-        io.observe(ref.current!);
-        return () => io.disconnect();
-    }, []);
+    // Once in view the hologram flickers on and the rays fade in
+    const [ref, lit] = useLit<HTMLDivElement>();
 
     return (
         <div ref={ref} className={`relative z-10 ${className}`}>
@@ -89,7 +99,50 @@ const ProjectedHeader = ({ icon: Icon, title, subtitle, className }: SectionHead
     );
 };
 
-/** Silicon and Light: magnetic icon box, with a "decoding" scramble on the title on hover. */
+/** A code token: not a <span>, so the Silicon theme leaves its case alone. */
+const Code = ({ className = '', children }: { className?: string; children: React.ReactNode }) => (
+    <code className={className} style={{ textTransform: 'none', fontSize: 'inherit' }}>{children}</code>
+);
+
+/**
+ * Silicon. The tag is an off-page connector pointing into a two-rail bus, which draws itself
+ * out to the right once the header scrolls in. The hierarchy path above names the instance.
+ */
+const PortHeader = ({ icon: Icon, title, subtitle, className, aside }: SectionHeaderProps) => {
+    const [ref, lit] = useLit<HTMLDivElement>();
+    const rail = { background: 'var(--color-electric)' };
+    return (
+        <div ref={ref} className={`relative z-10 w-full font-mono ${className}`}>
+            <div className="mb-2 text-xs text-gray-500">
+                <Code>top <b className="text-gray-600">/</b> u_{title.toLowerCase().replace(/\W+/g, '_')}</Code>
+            </div>
+            <div className="flex items-center">
+                <div
+                    className="silicon-port flex items-center gap-3 pl-4 pr-8 py-3 shrink-0"
+                    style={{ ...rail, clipPath: 'polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%)' }}
+                >
+                    <Icon size={20} />
+                    <h2 className="text-2xl font-black" style={{ color: '#000500' }}>{title}</h2>
+                </div>
+                {/* Bus: two rails, a width slash, the net name riding on top, and a pad at the end */}
+                <div
+                    className="relative flex-1 min-w-12 h-4 origin-left"
+                    style={{ transform: `scaleX(${lit ? 1 : 0})`, transition: 'transform .6s steps(12)' }}
+                >
+                    <i className="absolute left-0 right-0 top-[5px] h-px" style={rail} />
+                    <i className="absolute left-0 right-0 bottom-[5px] h-px" style={rail} />
+                    <i className="absolute left-16 top-[-4px] w-px h-6 rotate-[30deg]" style={rail} />
+                    <div className="absolute left-[72px] -top-5 text-[10px] text-gray-500"><Code>[63:0]</Code></div>
+                    <p className="absolute left-36 -top-6 whitespace-nowrap text-xs text-gray-400"><Code>{subtitle}</Code></p>
+                    <i className="absolute -right-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5" style={rail} />
+                </div>
+                {aside && <div className="ml-4 shrink-0">{aside}</div>}
+            </div>
+        </div>
+    );
+};
+
+/** Light: magnetic icon box, with a "decoding" scramble on the title on hover. */
 const IconHeader = ({ icon: Icon, title, subtitle, className }: SectionHeaderProps) => {
     const [displayTitle, setDisplayTitle] = useState(title);
 
@@ -126,10 +179,17 @@ const IconHeader = ({ icon: Icon, title, subtitle, className }: SectionHeaderPro
     );
 };
 
-const SectionHeader = ({ className = "mb-12", ...props }: SectionHeaderProps) => {
+const SectionHeader = ({ className = "mb-12", aside, ...props }: SectionHeaderProps) => {
     const theme = useTheme();
+    if (theme === 'silicon') return <PortHeader {...props} aside={aside} className={className} />;
     const Header = theme === 'default' ? ProjectedHeader : IconHeader;
-    return <Header {...props} className={className} />;
+    if (!aside) return <Header {...props} className={className} />;
+    return (
+        <div className={`flex flex-col md:flex-row justify-between items-end md:items-center gap-4 ${className}`}>
+            <Header {...props} className="mb-0" />
+            {aside}
+        </div>
+    );
 };
 
 export default SectionHeader;

@@ -289,10 +289,8 @@ const ExecutionTrace = () => {
 
     return (
         <>
-            <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-12 gap-4">
-                <SectionHeader icon={Zap} title="Execution Trace" subtitle='$monitor("Career Log: %t", $time);' className="mb-0" />
-                <ModeToggle mode={mode} setMode={setMode} />
-            </div>
+            <SectionHeader icon={Zap} title="Execution Trace" subtitle='$monitor("Career Log: %t", $time);'
+                aside={<ModeToggle mode={mode} setMode={setMode} />} />
             <AnimatePresence mode="wait">
                 <motion.div key={mode} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
                     {mode === 'log' ? (
