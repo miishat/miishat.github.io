@@ -43,7 +43,7 @@ const isRoot = (n: TopoNode) => n.id === 'test' || n.id === 'env';
 const branch = (n: TopoNode) => (n.depth ? '  '.repeat(n.depth - 1) + (n.last ? '`-- ' : '|-- ') : '');
 
 const TopologyTree = ({ sel, onSelect }: { sel: string; onSelect: (id: string) => void }) => (
-    <div className="border border-gray-800 rounded-lg bg-obsidian overflow-hidden">
+    <div className="verification-topology border border-gray-800 rounded-lg bg-obsidian overflow-hidden">
         <div className="px-4 py-2 bg-gray-900 border-b border-gray-800 text-[11px] text-gray-500">
             <span className="text-success">UVM_INFO</span> @ 0: uvm_test_top [UVMTOP] UVM testbench topology:
         </div>

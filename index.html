@@ -276,6 +276,11 @@
             width: 38px;
         }
 
+        /* Tree-row hover classes match the module rule, but their wires float above the section. */
+        body.theme-light .verification-topology button::before {
+            content: none !important;
+        }
+
         body.theme-light :is(.group, [class*="bg-gray-900/"], [class*="bg-black/"]):hover {
             border-color: var(--color-electric) !important;
             box-shadow: 0 0 0 3px rgba(111, 154, 122, 0.15), 0 14px 26px -16px rgba(62, 72, 62, 0.5) !important;
