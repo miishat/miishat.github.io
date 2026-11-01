@@ -29,6 +29,9 @@ const BondPads = () => (
     </>
 );
 
+/** Text in the block accent: .project-ink reads --accent, and Light darkens it to an ink. */
+const ink = (accent: string) => ({ '--accent': accent }) as React.CSSProperties;
+
 /** Standard-cell stripe texture tinted with the block accent. */
 const CellTexture = ({ accent, opacity }: { accent: string; opacity: number }) => (
     <div
@@ -113,7 +116,7 @@ const Floorplan = () => {
 
                                 <div className="relative p-4 pointer-events-none h-full">
                                     <motion.div layout="position" transition={transition}>
-                                        <div className="font-mono text-[10px] tracking-widest" style={{ color: p.accent }}>{p.code}</div>
+                                        <div className="project-ink font-mono text-[10px] tracking-widest" style={ink(p.accent)}>{p.code}</div>
                                         <h3 className={`font-display font-bold text-white leading-tight mt-1 ${isZoom ? 'text-3xl lg:text-4xl' : isMini ? 'text-sm' : 'text-lg'}`}>
                                             {p.title}
                                         </h3>
@@ -141,7 +144,7 @@ const Floorplan = () => {
                                                 {p.facts.map(f => (
                                                     <div key={f.label}>
                                                         <div className="text-[9px] text-gray-500 uppercase">{f.label}</div>
-                                                        <div className="text-2xl font-bold" style={{ color: p.accent }}>{f.value}</div>
+                                                        <div className="project-ink text-2xl font-bold" style={ink(p.accent)}>{f.value}</div>
                                                     </div>
                                                 ))}
                                                 <div className="pt-2 pointer-events-auto">
@@ -169,7 +172,7 @@ const ProjectList = () => (
         {SIDE_PROJECTS.map(p => (
             <article key={p.id} className="relative border border-gray-800 rounded-lg bg-gray-900/40 p-5 overflow-hidden" style={{ borderLeft: `3px solid ${p.accent}` }}>
                 <div className="flex justify-between font-mono text-[10px] mb-1">
-                    <span style={{ color: p.accent }}>{p.code}</span>
+                    <span className="project-ink" style={ink(p.accent)}>{p.code}</span>
                     <span className="text-gray-500">{KIND_LABEL[p.kind]} · {p.status}</span>
                 </div>
                 <h3 className="font-display text-xl font-bold text-white mb-2">{p.title}</h3>

@@ -89,7 +89,7 @@
             --color-gray-200: #e5e7eb;
             --color-gray-300: #d1d5db;
             --color-gray-400: #9ca3af;
-            --color-gray-500: #6b7280;
+            --color-gray-500: #7c8493;
             --color-gray-600: #4b5563;
             --color-gray-700: #374151;
             --color-gray-800: #1f2937;
@@ -120,6 +120,12 @@
             color: rgb(var(--color-white));
             overflow-x: hidden;
             transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* gray-600 is a border shade in the dark themes, too dim for text; labels set in it read
+           at the muted text shade instead */
+        body .text-gray-600 {
+            color: var(--color-gray-500);
         }
 
         /* Default theme: ClockProbeBackdrop sits behind every section. The footer fades to
@@ -163,9 +169,9 @@
             --color-gray-100: #3e483e;
             --color-gray-200: #4b564b;
             --color-gray-300: #5c685c;
-            --color-gray-400: #748074;
-            --color-gray-500: #8e998d;
-            --color-gray-600: #748074;
+            --color-gray-400: #5f6b5f;
+            --color-gray-500: #6b766a;
+            --color-gray-600: #6b766a;
             --color-gray-700: #c3cbbd;
             --color-gray-800: #e0e5da;
             --color-gray-900: #f9faf6;
@@ -180,6 +186,14 @@
             --series-7: #8796c0;
             --series-8: #a3a35f;
 
+            /* The pastel accents are for fills, wires and icons; text in an accent uses these
+               darker inks of the same hues so it stays readable on the cards */
+            --ink-electric: #3f6b4c;
+            --ink-pcbgold: #806530;
+            --ink-neonpurple: #6f5f7d;
+            --ink-success: #4c7a4c;
+            --ink-hero: #4f7a5c;
+
             counter-reset: bb-sec bb-ref;
             /* Contact holes: the base color shows only where both masks leave a 4px gap */
             background-color: #d5dccf;
@@ -193,6 +207,25 @@
         body.theme-light h2,
         body.theme-light h3 {
             letter-spacing: 0;
+        }
+
+        /* The hero name is display size, where Inter still wants tighter tracking */
+        body.theme-light #top h1 {
+            letter-spacing: -0.03em;
+        }
+
+        body.theme-light .text-electric:not(svg) { color: var(--ink-electric); }
+        body.theme-light .text-pcbgold:not(svg) { color: var(--ink-pcbgold); }
+        body.theme-light .text-neonpurple:not(svg) { color: var(--ink-neonpurple); }
+        body.theme-light .text-success:not(svg) { color: var(--ink-success); }
+
+        /* Project codes and figures take their block's accent (set as --accent inline) */
+        .project-ink {
+            color: var(--accent);
+        }
+
+        body.theme-light .project-ink {
+            color: color-mix(in srgb, var(--accent) 55%, #2a312a);
         }
 
         /* Rows: each section is labelled and carries +/- rails top and bottom */
@@ -374,7 +407,7 @@
 
         /* Component Specific Overrides for Light Mode */
         body.theme-light .glow-text {
-            color: var(--color-electric) !important;
+            color: var(--ink-hero) !important;
             text-shadow: 0 1px 0 #fff;
         }
 
@@ -408,7 +441,7 @@
             --color-gray-200: #ccffcc;
             --color-gray-300: #99ff99;
             --color-gray-400: #66cc66;
-            --color-gray-500: #339933;
+            --color-gray-500: #3a9e3a;
             --color-gray-600: #226622;
             --color-gray-700: #114411;
             --color-gray-800: #0a2a0a;
@@ -447,7 +480,16 @@
             border-radius: 0 !important;
             font-family: 'JetBrains Mono', monospace !important;
             box-shadow: none !important;
+        }
+
+        /* Zero specificity, so Tailwind's tracking utilities still win; each element gets 0.05em of
+           its own size rather than inheriting the body's in px */
+        :where(body.theme-silicon *) {
             letter-spacing: 0.05em;
+        }
+
+        body.theme-silicon #top h1 {
+            letter-spacing: -0.02em;
         }
 
         body.theme-silicon div {
@@ -548,11 +590,10 @@
             border-color: rgba(0, 255, 0, 0.3) !important;
         }
 
-        /* Typography */
+        /* Typography: headings in caps; code identifiers keep their case */
         body.theme-silicon h1,
         body.theme-silicon h2,
-        body.theme-silicon h3,
-        body.theme-silicon span {
+        body.theme-silicon h3 {
             text-transform: uppercase;
         }
 
