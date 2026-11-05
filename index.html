@@ -700,6 +700,12 @@
         /* Phones: sections run to a 16px gutter, so the Light rails and row labels move out to
            the screen edge with them */
         @media (max-width: 767px) {
+            /* A smaller base: Tailwind sizes text, padding and gaps in rem, so the whole layout comes down about
+               12% together. Text inputs keep 16px in px, or iOS zooms in when they're focused. */
+            html {
+                font-size: 14px;
+            }
+
             body.theme-light section::before {
                 left: 1rem;
             }

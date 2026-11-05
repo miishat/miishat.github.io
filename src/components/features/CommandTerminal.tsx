@@ -125,7 +125,7 @@ export default function CommandTerminal({ theme, onThemeChange }: CommandTermina
                                     onChange={e => setInput(e.target.value)}
                                     autoComplete="off"
                                     spellCheck={false}
-                                    className="flex-1 min-w-0 bg-transparent outline-none text-gray-100 placeholder-gray-600 max-md:text-base"
+                                    className="flex-1 min-w-0 bg-transparent outline-none text-gray-100 placeholder-gray-600 max-md:text-[16px]"
                                     placeholder="type help"
                                 />
                             </form>
