@@ -128,7 +128,7 @@ const LaserMarkBootSequence = ({ onComplete }: { onComplete: () => void }) => {
                 </div>
             </div>
             <div className="absolute bottom-6 right-8 text-[11px] tracking-widest uppercase" style={{ color: FAINT, opacity: notes }}>
-                Press any key or click to skip
+                <span className="max-md:hidden">Press any key or click to skip</span><span className="md:hidden">Tap to skip</span>
             </div>
         </div>
     );

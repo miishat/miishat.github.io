@@ -8,6 +8,7 @@
  * @author Mishat
  */
 import React, { useEffect, useRef, useState } from 'react';
+import { isPhone } from '../../usePhone';
 import { BLOCK_DETAIL, DIE, FAN_OUT, FLOORPLAN, IPKey, MISC_BLOCKS, PACKAGE, Quad, ROUTES, Rect, heroChip } from './heroChip';
 
 const CYAN = '#00f3ff', PURPLE = '#b026ff', GOLD = '#d4af37', INK = '#9ca3af';
@@ -194,8 +195,10 @@ const ChipBootSequence = ({ onComplete }: { onComplete: () => void }) => {
                 );
             })()}
 
-            {/* layer legend, centred on the flat chip, which sits above screen centre like the hero */}
-            <div className="absolute right-28 -translate-y-1/2 text-xs leading-8" style={{ top: flatY, opacity: notes }}>
+            {/* layer legend, centred on the flat chip, which sits above screen centre like the hero;
+                phones have no room beside the chip, so it sits under it */}
+            <div className="absolute right-28 -translate-y-1/2 max-md:right-auto max-md:left-6 max-md:bottom-16 max-md:translate-y-0 text-xs leading-8"
+                style={{ top: isPhone() ? undefined : flatY, opacity: notes }}>
                 <div className="text-gray-500 tracking-[0.3em] uppercase mb-2">stack-up</div>
                 {LAYERS.map(l => {
                     const k = span(draw, l.draw);
@@ -209,7 +212,7 @@ const ChipBootSequence = ({ onComplete }: { onComplete: () => void }) => {
             </div>
 
             <div className="absolute bottom-6 right-8 text-[11px] tracking-widest text-gray-600 uppercase" style={{ opacity: notes }}>
-                Press any key or click to skip
+                <span className="max-md:hidden">Press any key or click to skip</span><span className="md:hidden">Tap to skip</span>
             </div>
             <style>{'@keyframes boot-in { from { opacity: 0; } }'}</style>
         </div>

@@ -10,6 +10,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { SKILLS, OVERALL_YIELD } from '../../data/skillsData';
+import { usePhone } from '../../usePhone';
 
 const GRID = 15;        // dies per wafer row
 const CELL = 20;        // die pitch in px
@@ -151,8 +152,10 @@ const Wafer = ({ skill, tested, probe, focus, onHover, onPick }: {
     onPick?: (sector: number) => void;
 }) => {
     const size = GRID * CELL + PAD * 2;
+    // The narrowest phones can't fit the wafer, so it zooms down to the 16px page gutters
+    const fit = usePhone() ? Math.min(1, (window.innerWidth - 32) / size) : 1;
     return (
-        <div className="relative shrink-0" style={{ width: size, height: size }} onMouseLeave={onHover && (() => onHover(null))}>
+        <div className="relative shrink-0" style={{ width: size, height: size, zoom: fit }} onMouseLeave={onHover && (() => onHover(null))}>
             <div className="absolute inset-0 rounded-full border-2 border-gray-700 bg-gray-900/40" />
             {/* orientation notch */}
             <div className="absolute left-1/2 -translate-x-1/2 bottom-0 w-5 h-2.5 bg-obsidian rounded-t-full border-t-2 border-x-2 border-gray-700" />
@@ -235,6 +238,7 @@ const WaferCoverage = () => {
     const inView = useInView(rootRef, { once: true, amount: 0.4 });
     const reduceMotion = useReducedMotion();
     const lot = useWaferSort(inView, !!reduceMotion);
+    const phone = usePhone();
     const [focus, setFocus] = useState<number | null>(null);
 
     const stage = lot.view ?? lot.cur;
@@ -247,7 +251,7 @@ const WaferCoverage = () => {
         <div ref={rootRef} className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-center">
             <div className="border border-gray-800 rounded-lg bg-obsidian/80 p-4">
                 <div className="font-mono text-xs text-gray-500 mb-3">
-                    FOUP-01 · {SKILLS.length} slots{lot.finished && ' · hover the wafer or click a slot'}
+                    FOUP-01 · {SKILLS.length} slots{lot.finished && (phone ? ' · tap the wafer or a slot' : ' · hover the wafer or click a slot')}
                 </div>
                 <div className="flex flex-col gap-2">
                     {SKILLS.map((s, i) => {
@@ -281,7 +285,8 @@ const WaferCoverage = () => {
                 </div>
             </div>
 
-            <div className="flex flex-col items-center gap-3">
+            {/* Phones put the prober above the rack, so the scan is what scrolls into view */}
+            <div className="flex flex-col items-center gap-3 max-md:order-first">
                 <Wafer
                     skill={stage}
                     tested={lot.finished ? 'all' : lot.tested}

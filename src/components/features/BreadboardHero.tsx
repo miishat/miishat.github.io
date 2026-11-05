@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import CyberText from '../ui/CyberText';
 import { lightBoard } from './lightBoard';
+import { usePhone } from '../../usePhone';
 
 type Props = { setTooltip: (t: string | null) => void; tooltip: string | null };
 type V3 = [number, number, number];
@@ -153,7 +154,8 @@ const Dip = ({ x, n, ip, sub, setTooltip, bob = false, phase = 0 }: {
             {/* fixed hit box covering the lift, so a rising chip doesn't slip out from under the cursor */}
             <mesh position={[0, base + 0.3, 0]}
                 onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setHover(true); cur.over(); setTooltip(tipOf(ip)); }}
-                onPointerOut={() => { setHover(false); cur.out(); }}>
+                onPointerOut={() => { setHover(false); cur.out(); }}
+                onClick={() => setTooltip(tipOf(ip))}>
                 <boxGeometry args={[L, 0.6, W + 0.2]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
             </mesh>
@@ -215,7 +217,8 @@ const Jumper = ({ a, b, h, color, pulse, ip, setTooltip, r = 0.028 }: {
         <group>
             <mesh
                 onPointerOver={ip ? (e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setHover(true); cur.over(); setTooltip?.(tipOf(ip)); } : undefined}
-                onPointerOut={ip ? () => { setHover(false); cur.out(); } : undefined}>
+                onPointerOut={ip ? () => { setHover(false); cur.out(); } : undefined}
+                onClick={ip ? () => setTooltip?.(tipOf(ip)) : undefined}>
                 <tubeGeometry args={[curve, 80, hover ? r * 1.4 : r, 10, false]} />
                 <meshStandardMaterial color={col} roughness={0.45} />
             </mesh>
@@ -374,7 +377,7 @@ const Pill = ({ tooltip, hint }: { tooltip: string | null; hint: string }) => (
     <div className="h-12 flex items-center">
         {tooltip ? (
             <motion.div key={tooltip} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                className="px-5 py-2 rounded-full font-mono text-sm text-gray-200"
+                className="px-5 py-2 rounded-full font-mono text-sm text-gray-200 max-md:max-w-[calc(100vw-2rem)] max-md:rounded-2xl max-md:text-xs max-md:px-4"
                 style={{ background: '#f9faf6', border: '1px solid rgba(111,154,122,0.55)', boxShadow: '0 8px 20px -14px rgba(62,72,62,0.6)' }}>
                 <span className="text-electric font-bold mr-2">&#9679;</span>{tooltip}
             </motion.div>
@@ -383,7 +386,7 @@ const Pill = ({ tooltip, hint }: { tooltip: string | null; hint: string }) => (
 );
 
 const Tip = () => (
-    <div className="text-[10px] text-gray-500 font-mono">
+    <div className="text-[10px] text-gray-500 font-mono max-md:hidden">
         Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
     </div>
 );
@@ -392,27 +395,30 @@ const HERO_MASK = { maskImage: 'linear-gradient(to bottom, black 82%, transparen
 
 /** Renders the Light theme hero: the breadboard scene behind, the copy lifted above the chips. */
 export default function BreadboardHero({ setTooltip, tooltip }: Props) {
+    const phone = usePhone();
     return (
         <>
             <div className="absolute inset-0 z-0" style={HERO_MASK}>
-                <Canvas camera={{ position: [0, 2.6, 7.6], fov: 45 }} dpr={[1, 2]}>
+                {/* Phones look down on the bench from higher up, turned to run corner to corner, which gives the long
+                    board the screen's diagonal */}
+                <Canvas camera={{ position: phone ? [0, 10.5, 9.5] : [0, 2.6, 7.6], fov: 45 }} dpr={[1, 2]}>
                     <SoftLights />
-                    <group position={[0, -1.6, 0.9]} scale={0.84}>
+                    <group position={phone ? [0, -1.2, 1.3] : [0, -1.6, 0.9]} rotation={[0, phone ? -0.95 : 0, 0]} scale={phone ? 0.74 : 0.84}>
                         <Lean amt={0.06}><Bench setTooltip={setTooltip} /></Lean>
                     </group>
                 </Canvas>
             </div>
-            <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-center items-center -translate-y-24">
+            <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-center items-center -translate-y-24 max-md:justify-start max-md:pt-[9svh] max-md:translate-y-0">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
                     className="flex flex-col items-center text-center">
                     <div className="flex items-center gap-3 mb-1 font-mono text-[11px] font-bold tracking-[0.2em] uppercase text-gray-500">
                         <Rails /> ROW 0 &middot; SoC verification <Rails />
                     </div>
                     <CyberText text="MISHAT" />
-                    <p className="-mt-2 text-lg md:text-xl font-bold text-gray-300 whitespace-nowrap">
+                    <p className="-mt-2 text-lg md:text-xl font-bold text-gray-300 whitespace-nowrap max-md:whitespace-normal max-md:max-w-[22rem] max-md:text-base max-md:px-4">
                         Senior Design Verification Engineer <span style={{ color: '#a88a45' }}>@ Marvell Technology</span>
                     </p>
-                    <div className="mt-3"><Pill tooltip={tooltip} hint="Hover a chip or a wire..." /></div>
+                    <div className="mt-3"><Pill tooltip={tooltip} hint={phone ? 'Tap a chip or a wire...' : 'Hover a chip or a wire...'} /></div>
                     <div className="mt-2"><Tip /></div>
                 </motion.div>
             </div>

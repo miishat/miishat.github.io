@@ -50,13 +50,14 @@ const ProjectedHeader = ({ icon: Icon, title, subtitle, className }: SectionHead
 
     return (
         <div ref={ref} className={`relative z-10 ${className}`}>
-            <div className="relative inline-block" style={{ paddingLeft: 72, paddingBottom: 52 }}>
+            {/* Phones: inset so the probe body, which hangs left of the block, stays on screen */}
+            <div className="relative inline-block max-md:ml-10" style={{ paddingLeft: 72, paddingBottom: 52 }}>
                 <div className="holo-bob">
                     <div className={`relative px-6 py-3 ${lit ? 'holo-flicker' : 'opacity-0'}`}>
                         {CORNERS.map(c => <span key={c} className={`absolute w-4 h-4 border-electric ${c}`} />)}
                         <div className="flex items-center gap-3">
                             <Icon size={24} className="text-electric shrink-0" />
-                            <h2 className="holo-text text-3xl sm:text-4xl font-bold tracking-tight">{title}</h2>
+                            <h2 className="holo-text text-2xl sm:text-4xl font-bold tracking-tight">{title}</h2>
                         </div>
                     </div>
                 </div>
@@ -116,13 +117,13 @@ const PortHeader = ({ icon: Icon, title, subtitle, className, aside }: SectionHe
             <div className="mb-2 text-xs text-gray-500">
                 <Code>top <b className="text-gray-600">/</b> u_{title.toLowerCase().replace(/\W+/g, '_')}</Code>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center max-md:flex-wrap">
                 <div
                     className="silicon-port flex items-center gap-3 pl-4 pr-8 py-3 shrink-0"
                     style={{ ...rail, clipPath: 'polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%)' }}
                 >
                     <Icon size={20} />
-                    <h2 className="text-2xl font-black" style={{ color: '#000500' }}>{title}</h2>
+                    <h2 className="text-2xl max-md:text-xl font-black" style={{ color: '#000500' }}>{title}</h2>
                 </div>
                 {/* Bus: two rails, a width slash, the net name riding on top, and a pad at the end */}
                 <div
@@ -132,11 +133,13 @@ const PortHeader = ({ icon: Icon, title, subtitle, className, aside }: SectionHe
                     <i className="absolute left-0 right-0 top-[5px] h-px" style={rail} />
                     <i className="absolute left-0 right-0 bottom-[5px] h-px" style={rail} />
                     <i className="absolute left-16 top-[-4px] w-px h-6 rotate-[30deg]" style={rail} />
-                    <div className="absolute left-[72px] -top-5 text-[10px] text-gray-500"><Code>[63:0]</Code></div>
-                    <p className="absolute left-36 -top-6 whitespace-nowrap text-xs text-gray-400"><Code>{subtitle}</Code></p>
+                    <div className="absolute left-[72px] -top-5 text-[10px] text-gray-500 max-md:hidden"><Code>[63:0]</Code></div>
+                    <p className="absolute left-36 -top-6 whitespace-nowrap text-xs text-gray-400 max-md:hidden"><Code>{subtitle}</Code></p>
                     <i className="absolute -right-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5" style={rail} />
                 </div>
-                {aside && <div className="ml-4 shrink-0">{aside}</div>}
+                {/* Phones leave the bus too short to carry the net name, so it goes under the tag */}
+                <p className="md:hidden basis-full mt-2 text-xs text-gray-400"><Code>{subtitle}</Code></p>
+                {aside && <div className="ml-4 shrink-0 max-md:ml-0 max-md:mt-3 max-md:basis-full">{aside}</div>}
             </div>
         </div>
     );
@@ -211,7 +214,8 @@ const SectionHeader = ({ className = "mb-12", aside, ...props }: SectionHeaderPr
     const Header = theme === 'default' ? ProjectedHeader : IconHeader;
     if (!aside) return <Header {...props} className={className} />;
     return (
-        <div className={`flex flex-col md:flex-row justify-between items-end md:items-center gap-4 ${className}`}>
+        // Phones: the header stays at the left edge like every other section's, with the control full width under it
+        <div className={`flex flex-col md:flex-row justify-between items-end md:items-center max-md:items-stretch gap-4 ${className}`}>
             <Header {...props} className="mb-0" />
             {aside}
         </div>

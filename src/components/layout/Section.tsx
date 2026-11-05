@@ -17,7 +17,7 @@ interface SectionProps {
 }
 
 const Section = ({ children, className = "", id = "", as: Component = "section", fill = true }: SectionProps) => (
-    <Component id={id} className={`${fill ? 'min-h-screen' : ''} relative flex flex-col justify-center items-center p-8 pl-16 lg:pl-24 ${className}`}>
+    <Component id={id} className={`${fill ? 'min-h-screen' : ''} relative flex flex-col justify-center items-center p-8 pl-16 lg:pl-24 max-md:px-4 ${className}`}>
         {children}
     </Component>
 );

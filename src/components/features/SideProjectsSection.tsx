@@ -41,12 +41,13 @@ const CellTexture = ({ accent, opacity }: { accent: string; opacity: number }) =
 );
 
 const ProjectLinks = ({ project, size }: { project: SideProject; size: number }) => (
-    <div className="flex gap-3 text-xs font-mono">
-        <a href={project.repo} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-gray-300 hover:text-electric">
+    // Phones: padded out to a thumb-sized target, pulled back by the same amount so the card doesn't grow
+    <div className="flex gap-3 max-md:gap-2 text-xs font-mono">
+        <a href={project.repo} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-gray-300 hover:text-electric max-md:-m-2 max-md:p-2 max-md:mr-0">
             <Github size={size} /> source
         </a>
         {project.live && (
-            <a href={project.live} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-gray-300 hover:text-electric">
+            <a href={project.live} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-gray-300 hover:text-electric max-md:-my-2 max-md:p-2">
                 <ExternalLink size={size} /> live
             </a>
         )}
@@ -186,7 +187,7 @@ const ProjectList = () => (
 
 export default function SideProjectsSection() {
     return (
-        <Section fill={false} className="relative overflow-x-clip py-48" id="projects">
+        <Section fill={false} className="relative overflow-x-clip py-48 max-md:py-24" id="projects">
             <div className="max-w-7xl w-full z-10 relative">
                 <SectionHeader icon={FolderGit2} title="Spare Cycles" subtitle="fork side_projects(); join_none;" />
                 <Floorplan />

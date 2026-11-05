@@ -697,6 +697,28 @@
             .holo-text, .holo-flicker, .holo-bob, .probe-ping { animation: none; }
         }
 
+        /* Phones: sections run to a 16px gutter, so the Light rails and row labels move out to
+           the screen edge with them */
+        @media (max-width: 767px) {
+            body.theme-light section::before {
+                left: 1rem;
+            }
+
+            body.theme-light section::after {
+                left: 0.25rem;
+                right: 0.25rem;
+            }
+
+            /* The terminal's actions sit in a row of small buttons here; pins and a wire on
+               every one of them would bury the labels */
+            body.theme-light #terminal nav .group::before,
+            body.theme-light #terminal nav .group::after,
+            body.theme-silicon #terminal nav .group::before,
+            body.theme-silicon #terminal nav .group::after {
+                content: none !important;
+            }
+        }
+
         /* Enforce Custom Cursor Only on Desktop */
         @media (min-width: 768px) {
             * {

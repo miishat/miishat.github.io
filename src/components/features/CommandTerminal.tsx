@@ -57,7 +57,7 @@ export default function CommandTerminal({ theme, onThemeChange }: CommandTermina
         { icon: Play, label: 'run_test', act: () => run('run_test') },
         { icon: Mail, label: 'contact', act: () => run('contact') },
         { icon: FileDown, label: 'resume', act: () => run('resume') },
-        { icon: Palette, label: `theme: ${THEMES[themeIdx].label} → ${nextTheme.label}`, act: () => run(`theme ${nextTheme.label}`) },
+        { icon: Palette, label: `theme: ${THEMES[themeIdx].label} → ${nextTheme.label}`, short: 'theme', act: () => run(`theme ${nextTheme.label}`) },
         { icon: HelpCircle, label: 'help', act: () => run('help') },
         { icon: Trash2, label: 'clear', act: () => run('clear') },
     ];
@@ -66,18 +66,19 @@ export default function CommandTerminal({ theme, onThemeChange }: CommandTermina
         <div className="w-full max-w-6xl z-10 relative">
             <SectionHeader icon={TerminalSquare} title="Run Simulation" subtitle="vsim -c portfolio.command_terminal;" />
 
-            <div className="border border-gray-700 rounded-lg overflow-hidden bg-obsidian shadow-2xl font-mono text-[13px] text-left grid grid-cols-[56px_1fr]">
-                {/* Icon rail */}
-                <nav aria-label="Terminal actions" className="bg-gray-900 border-r border-gray-800 flex flex-col items-center py-3 gap-1">
+            <div className="border border-gray-700 rounded-lg overflow-hidden bg-obsidian shadow-2xl font-mono text-[13px] text-left grid grid-cols-[56px_1fr] max-md:grid-cols-1">
+                {/* Icon rail; phones have no hover to show its labels, so it becomes one row of icons labelled underneath */}
+                <nav aria-label="Terminal actions" className="bg-gray-900 border-r border-gray-800 flex flex-col items-center py-3 gap-1 max-md:grid max-md:grid-cols-6 max-md:gap-0.5 max-md:border-r-0 max-md:border-b max-md:px-1 max-md:py-1.5">
                     {rail.map(r => (
                         <button
                             key={r.label}
                             onClick={r.act}
                             aria-label={r.label}
-                            className="group relative w-10 h-10 flex items-center justify-center rounded-md text-gray-500 hover:text-electric hover:bg-gray-800 focus-visible:outline focus-visible:outline-1 focus-visible:outline-electric"
+                            className="group relative w-10 h-10 flex items-center justify-center rounded-md text-gray-500 hover:text-electric hover:bg-gray-800 focus-visible:outline focus-visible:outline-1 focus-visible:outline-electric max-md:w-auto max-md:h-auto max-md:flex-col max-md:gap-1 max-md:py-2 max-md:min-w-0"
                         >
                             <r.icon size={18} />
-                            <span className="pointer-events-none absolute left-12 whitespace-nowrap rounded-sm bg-gray-800 border border-gray-700 px-2 py-1 text-[11px] text-gray-200 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 z-10">
+                            <span className="md:hidden text-[10px] leading-none" aria-hidden>{r.short ?? r.label}</span>
+                            <span className="max-md:hidden pointer-events-none absolute left-12 whitespace-nowrap rounded-sm bg-gray-800 border border-gray-700 px-2 py-1 text-[11px] text-gray-200 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 z-10">
                                 {r.label}
                             </span>
                         </button>
@@ -102,7 +103,7 @@ export default function CommandTerminal({ theme, onThemeChange }: CommandTermina
                     </div>
 
                     {tab === 'transcript' ? (
-                        <div role="tabpanel" className="flex flex-col h-[420px]" onClick={() => inputRef.current?.focus()}>
+                        <div role="tabpanel" className="flex flex-col h-[420px] max-md:h-[360px]" onClick={() => inputRef.current?.focus()}>
                             <div ref={scroller} aria-live="polite" className="flex-1 overflow-y-auto px-5 py-4 space-y-1">
                                 {lines.map((l, i) => (
                                     <div key={i} className={`whitespace-pre-wrap break-words ${LINE_COLOR[l.kind]}`}>{l.text}</div>
@@ -124,7 +125,7 @@ export default function CommandTerminal({ theme, onThemeChange }: CommandTermina
                                     onChange={e => setInput(e.target.value)}
                                     autoComplete="off"
                                     spellCheck={false}
-                                    className="flex-1 min-w-0 bg-transparent outline-none text-gray-100 placeholder-gray-600"
+                                    className="flex-1 min-w-0 bg-transparent outline-none text-gray-100 placeholder-gray-600 max-md:text-base"
                                     placeholder="type help"
                                 />
                             </form>
@@ -154,7 +155,7 @@ export default function CommandTerminal({ theme, onThemeChange }: CommandTermina
                         </div>
                     )}
 
-                    <div className="flex px-5 py-1.5 border-t border-gray-800 bg-gray-900 text-[10px] text-gray-500">
+                    <div className="flex max-md:flex-wrap max-md:gap-x-4 px-5 py-1.5 border-t border-gray-800 bg-gray-900 text-[10px] text-gray-500">
                         <span>Now: 0 ns</span>
                         <span className="ml-auto">© {new Date().getFullYear()} Mishat. Designed inside the silicon.</span>
                     </div>

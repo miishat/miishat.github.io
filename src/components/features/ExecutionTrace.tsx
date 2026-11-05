@@ -7,7 +7,7 @@
  * @module Components/Features
  * @author Mishat
  */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap } from 'lucide-react';
 import { TRACE_DATA, PRESENT } from '../../data/traceData';
@@ -89,7 +89,7 @@ const ModeToggle = ({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void 
     <div className="flex font-mono text-sm border border-gray-700 rounded-lg overflow-hidden shrink-0">
         {(['log', 'wave'] as const).map(m => (
             <button key={m} onClick={() => setMode(m)}
-                className={`px-4 py-2 transition-colors ${m === 'wave' ? 'border-l border-gray-700' : ''} ${mode === m ? 'bg-gray-800 text-electric' : 'bg-gray-900 text-gray-500 hover:text-white'}`}>
+                className={`px-4 py-2 max-md:flex-1 max-md:py-2.5 transition-colors ${m === 'wave' ? 'border-l border-gray-700' : ''} ${mode === m ? 'bg-gray-800 text-electric' : 'bg-gray-900 text-gray-500 hover:text-white'}`}>
                 {m === 'log' ? 'Log' : 'Waveform'}
             </button>
         ))}
@@ -117,21 +117,21 @@ interface LogEntryProps {
 const LogEntry = ({ entry: e, isLast, selected, onSelect, onShowWave }: LogEntryProps) => {
     const color = TYPE_COLOR[e.type];
     return (
-        <div className="relative pl-10 pb-8">
+        <div className="relative pl-10 max-md:pl-8 pb-8">
             {!isLast && <span className="absolute left-[7px] top-4 bottom-0 w-[2px] bg-gray-800" />}
             <span className="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 transition-all"
                 style={{ borderColor: color, background: selected ? color : 'var(--color-obsidian)', boxShadow: selected ? `0 0 12px ${color}` : 'none' }} />
             {isOngoing(e) && <span className="absolute left-0 top-1.5 w-4 h-4 rounded-full animate-ping" style={{ background: rgba(color, 0.4) }} />}
 
             <div onClick={onSelect}
-                className="cursor-pointer rounded-lg border p-5 transition-colors"
+                className="cursor-pointer rounded-lg border p-5 max-md:p-4 transition-colors"
                 style={{ borderColor: selected ? 'var(--color-electric)' : 'var(--color-gray-800)', background: selected ? 'var(--color-gray-900)' : 'transparent' }}>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs">
                     <span className="text-electric text-sm">{formatRange(e)}</span>
                     <span className="px-1.5 rounded border" style={{ color, borderColor: rgba(color, 0.5) }}>{TYPE_TAG[e.type]}</span>
                     <span className="ml-auto text-gray-600">{e.stateCode}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mt-2">{e.title} <span className="text-gray-400">@ {orgOf(e)}</span></h3>
+                <h3 className="text-xl max-md:text-lg font-bold text-white mt-2">{e.title} <span className="text-gray-400">@ {orgOf(e)}</span></h3>
                 {e.degree && <div className="text-pcbgold font-mono text-xs mt-1">{e.degree}</div>}
                 <p className="text-gray-400 mt-2 leading-relaxed">{e.description}</p>
                 <div className="mt-4 flex items-center gap-3 font-mono text-[10px] text-gray-600">
@@ -187,12 +187,28 @@ interface WaveformProps {
 
 const Waveform = ({ cursor, setCursor, selected, onPick }: WaveformProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
     const under = primaryAt(cursor);
+
+    // Phones scroll the lanes sideways; open them with the cursor in the middle of the screen
+    useEffect(() => {
+        const el = scrollRef.current, canvas = canvasRef.current;
+        if (!el || !canvas || el.scrollWidth <= el.clientWidth) return;
+        const left = canvas.getBoundingClientRect().left - el.getBoundingClientRect().left + el.scrollLeft;
+        el.scrollLeft = left + (canvas.offsetWidth * tx(cursor)) / 100 - el.clientWidth / 2;
+    }, []);
     const focus = TRACE_DATA.find(e => e.id === selected) ?? under;
 
-    const onMouseMove = (ev: React.MouseEvent) => {
+    const timeAt = (ev: React.MouseEvent) => {
         const r = canvasRef.current!.getBoundingClientRect();
-        setCursor(T0 + Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)) * (T1 - T0));
+        return T0 + Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)) * (T1 - T0);
+    };
+    const onMouseMove = (ev: React.MouseEvent) => setCursor(timeAt(ev));
+    // A tap has no mousemove before it, so the click places the cursor itself
+    const onClick = (ev: React.MouseEvent) => {
+        const t = timeAt(ev), e = primaryAt(t);
+        setCursor(t);
+        if (e) onPick(e.id);
     };
     const valueAt = (segs: Seg[], label: (e: Entry) => string) => {
         const s = segs.find(s => cursor >= s.a && cursor < s.b);
@@ -209,12 +225,14 @@ const Waveform = ({ cursor, setCursor, selected, onPick }: WaveformProps) => {
                     </div>
                     <div className="flex items-center gap-3">
                         <span className="text-gray-500">cursor <span className="text-pcbgold">{formatYear(cursor)}</span></span>
-                        <span className="px-2 py-0.5 rounded border border-gray-700 text-success">ZOOM 100%</span>
+                        <span className="px-2 py-0.5 rounded border border-gray-700 text-success max-md:hidden">ZOOM 100%</span>
                     </div>
                 </div>
-                <div className="grid grid-cols-[9rem_1fr] md:grid-cols-[15rem_1fr]">
+                <div className="md:hidden px-4 py-1.5 border-b border-gray-800 text-[10px] text-gray-500">drag sideways to scroll · tap to move the cursor</div>
+                <div ref={scrollRef} className="max-md:overflow-x-auto">
+                <div className="grid grid-cols-[9rem_1fr] md:grid-cols-[15rem_1fr] max-md:grid-cols-[7.5rem_1fr] max-md:min-w-[680px]">
                     {/* Signal names with their value at the cursor */}
-                    <div className="border-r border-gray-800 bg-gray-900">
+                    <div className="border-r border-gray-800 bg-gray-900 max-md:sticky max-md:left-0 max-md:z-10">
                         <div className="h-7 px-3 flex items-center text-gray-600 border-b border-gray-800">signals</div>
                         {[{ name: 'sys_clk', color: 'text-success' }, { name: 'rst_n', color: 'text-red-400' }].map(r => (
                             <div key={r.name} className="px-3 flex items-center justify-between border-b border-gray-800" style={{ height: ROW_H }}>
@@ -230,7 +248,7 @@ const Waveform = ({ cursor, setCursor, selected, onPick }: WaveformProps) => {
                     </div>
 
                     {/* Canvas */}
-                    <div ref={canvasRef} onMouseMove={onMouseMove} onClick={() => under && onPick(under.id)} className="relative cursor-crosshair">
+                    <div ref={canvasRef} onMouseMove={onMouseMove} onClick={onClick} className="relative cursor-crosshair">
                         <div className="h-7 border-b border-gray-800 relative">
                             {YEARS.slice(0, -1).map(y => (
                                 <span key={y} className="absolute top-1.5 text-[10px] text-gray-600" style={{ left: `calc(${tx(y)}% + 3px)` }}>{y}</span>
@@ -250,6 +268,7 @@ const Waveform = ({ cursor, setCursor, selected, onPick }: WaveformProps) => {
                             <span className="absolute top-1 left-1 px-1 rounded bg-pcbgold text-black text-[10px] whitespace-nowrap">{formatYear(cursor)}</span>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
 

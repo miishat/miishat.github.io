@@ -15,6 +15,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Cpu } from 'lucide-react';
 import * as THREE from 'three';
 import CyberText from '../ui/CyberText';
+import { usePhone } from '../../usePhone';
 import { BLOCK_DETAIL, DIE, FAN_OUT, FLOORPLAN, IPKey, MISC_BLOCKS, PACKAGE, ProjectChip, ROUTES, Rect, heroChip } from './heroChip';
 
 type Props = { setTooltip: (t: string | null) => void; tooltip: string | null };
@@ -76,17 +77,36 @@ const Pulse = ({ route, speed, offset, color }: { route: [number, number][]; spe
     );
 };
 
-/** Invisible hit box over an IP block; hovering outlines it and fills the tooltip. */
-const BlockHover = ({ ip, setTooltip }: { ip: IP; setTooltip: Props['setTooltip'] }) => {
-    const [hover, setHover] = useState(false);
+/**
+ * Phones have no hover, so a tap picks a block instead. A tap that lands on one sets `hit`, which tells the
+ * hero's own click handler (it runs after the scene's) to leave the morph alone.
+ */
+const tap = { hit: false };
+
+/** Whether an object and all its parents are visible, i.e. it belongs to the model on screen. */
+const shown = (o: THREE.Object3D | null): boolean => !o || (o.visible && shown(o.parent));
+
+/** A phone tap on a block of the model on screen: claims the tap and runs `pick`. */
+const onTap = (pick: () => void) => (e: ThreeEvent<MouseEvent>) => {
+    if (!shown(e.object)) return; // the faded-out model's hit boxes stay in the scene; let the tap pass through
+    e.stopPropagation();
+    tap.hit = true;
+    pick();
+};
+
+/** Invisible hit box over an IP block; hovering (on a phone, tapping) outlines it and fills the tooltip. */
+const BlockHover = ({ ip, setTooltip, picked, onPick }: { ip: IP; setTooltip: Props['setTooltip']; picked?: boolean; onPick?: () => void }) => {
+    const [hovered, setHover] = useState(false);
+    const hover = onPick ? !!picked : hovered;
     const [x, y, w, d] = FLOORPLAN[ip.key];
     const [px, , pz] = fpWorld(x + w / 2, y + d / 2);
     const color = IP_COLOR[ip.key];
     return (
         <group position={[px, 0.12, pz]}>
             <mesh
-                onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setHover(true); setTooltip(tipOf(ip)); }}
-                onPointerOut={() => setHover(false)}
+                onPointerOver={onPick ? undefined : (e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setHover(true); setTooltip(tipOf(ip)); }}
+                onPointerOut={onPick ? undefined : () => setHover(false)}
+                onClick={onPick && onTap(() => { onPick(); setTooltip(tipOf(ip)); })}
             >
                 <boxGeometry args={[w * DIE, 0.12, d * DIE]} />
                 <meshBasicMaterial color={color} transparent opacity={hover ? 0.18 : 0} depthWrite={false} />
@@ -98,8 +118,10 @@ const BlockHover = ({ ip, setTooltip }: { ip: IP; setTooltip: Props['setTooltip'
 };
 
 /** The die as a wireframe: package and die outlines, floorplan line work, pulses and a scan bar. */
-const Hologram = ({ setTooltip }: { setTooltip: Props['setTooltip'] }) => {
+const Hologram = ({ setTooltip, phone, epoch }: { setTooltip: Props['setTooltip']; phone: boolean; epoch: number }) => {
     const scan = useRef<THREE.Group>(null);
+    const [picked, setPicked] = useState<IPKey | null>(null);
+    useEffect(() => setPicked(null), [epoch]);
     useFrame(({ clock }) => {
         if (scan.current) scan.current.position.z = (((clock.elapsedTime * 0.3) % 1) - 0.5) * DIE;
     });
@@ -127,7 +149,8 @@ const Hologram = ({ setTooltip }: { setTooltip: Props['setTooltip'] }) => {
                     <meshBasicMaterial color={C.cyan} transparent opacity={0.08} depthWrite={false} />
                 </mesh>
             </group>
-            {IPS.map(ip => <BlockHover key={ip.key} ip={ip} setTooltip={setTooltip} />)}
+            {IPS.map(ip => <BlockHover key={ip.key} ip={ip} setTooltip={setTooltip}
+                picked={picked === ip.key} onPick={phone ? () => setPicked(ip.key) : undefined} />)}
         </group>
     );
 };
@@ -161,12 +184,13 @@ const rng = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) - 1) /
  * The 7x7 router mesh with XY-routed packets. `reveal` (0..1) drives the entrance:
  * each router drops in from above, the centre first.
  */
-const NocMesh = ({ setTooltip, reveal }: { setTooltip: Props['setTooltip']; reveal: React.MutableRefObject<number> }) => {
+const NocMesh = ({ setTooltip, reveal, phone, epoch }: { setTooltip: Props['setTooltip']; reveal: React.MutableRefObject<number>; phone: boolean; epoch: number }) => {
     const routers = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
     const towers = useRef<(THREE.Group | null)[]>([]);
     const packets = useRef<(THREE.Mesh | null)[]>([]);
     const flash = useRef<number[]>(Array(N * N).fill(0));
     const [hover, setHover] = useState<IPKey | null>(null);
+    useEffect(() => setHover(null), [epoch]);
 
     const traffic = useMemo(() => {
         const r = rng(11);
@@ -248,8 +272,9 @@ const NocMesh = ({ setTooltip, reveal }: { setTooltip: Props['setTooltip']; reve
                 return (
                     <group key={k} position={[(gx(x0) + gx(x1)) / 2, 0.01, (gx(z0) + gx(z1)) / 2]}>
                         <mesh
-                            onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setHover(k); setTooltip(tipOf(ip)); }}
-                            onPointerOut={() => setHover(null)}
+                            onPointerOver={phone ? undefined : (e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setHover(k); setTooltip(tipOf(ip)); }}
+                            onPointerOut={phone ? undefined : () => setHover(null)}
+                            onClick={phone ? onTap(() => { setHover(k); setTooltip(tipOf(ip)); }) : undefined}
                         >
                             <boxGeometry args={[w, 0.03, d]} />
                             <meshBasicMaterial color={IP_COLOR[k]} transparent opacity={hover === k ? 0.22 : 0.08} depthWrite={false} />
@@ -299,7 +324,10 @@ const fadeGroup = (g: THREE.Object3D | null, a: number) => {
     });
 };
 
-const MorphScene = React.memo(({ target, instant, setTooltip }: { target: React.MutableRefObject<number>; instant: boolean; setTooltip: Props['setTooltip'] }) => {
+const MorphScene = React.memo(({ target, instant, setTooltip, shift = SHIFT, drop = 0, phone = false, epoch = 0 }: {
+    target: React.MutableRefObject<number>; instant: boolean; setTooltip: Props['setTooltip'];
+    shift?: number; drop?: number; phone?: boolean; epoch?: number;
+}) => {
     const { camera, size, gl, scene } = useThree();
     const warmFrames = useRef(0);
     const progress = useRef(0);
@@ -347,7 +375,7 @@ const MorphScene = React.memo(({ target, instant, setTooltip }: { target: React.
         reveal.current = e;
 
         // Off-centre framing without moving the camera, so nothing clips at a canvas edge
-        (camera as THREE.PerspectiveCamera).setViewOffset(size.width, size.height, -SHIFT * e * size.width, 0, size.width, size.height);
+        (camera as THREE.PerspectiveCamera).setViewOffset(size.width, size.height, -shift * e * size.width, -drop * size.height, size.width, size.height);
         scale.current?.scale.setScalar(1 - SHRINK * e);
         if (holo.current) holo.current.scale.y = Math.max(0.02, 1 - e * 1.6); // flattens into the die
         fadeGroup(holo.current, clamp01(1 - e * 1.6));
@@ -359,9 +387,9 @@ const MorphScene = React.memo(({ target, instant, setTooltip }: { target: React.
             <group position={[0, 0.8, 0]} rotation={[0.5, 0, 0]}>
                 <group ref={spin}>
                     <group ref={scale}>
-                        <group ref={holo}><Hologram setTooltip={setTooltip} /></group>
+                        <group ref={holo}><Hologram setTooltip={setTooltip} phone={phone} epoch={epoch} /></group>
                         <group scale={MESH_SCALE / (1 - SHRINK)}>
-                            <group ref={mesh}><NocMesh setTooltip={setTooltip} reveal={reveal} /></group>
+                            <group ref={mesh}><NocMesh setTooltip={setTooltip} reveal={reveal} phone={phone} epoch={epoch} /></group>
                         </group>
                     </group>
                 </group>
@@ -380,7 +408,7 @@ const EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
  * is its own layout node, so the switch glides every row (including the narrow label,
  * tooltip and tip rows) rather than snapping them across.
  */
-const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: string | null; hint: string; instant: boolean }) => {
+const Copy = ({ split, tooltip, hint, instant, phone }: { split: boolean; tooltip: string | null; hint: string; instant: boolean; phone: boolean }) => {
     const t = { duration: instant ? 0 : MORPH_SECONDS, ease: EASE };
     // layoutDependency limits the slide to the morph itself; otherwise swapping the hint for a
     // wider tooltip on hover also re-centres the row and glides it in from the side
@@ -392,7 +420,7 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
         // layout before the padding existed and start the slide from the wrong place.
         <div
             className={`absolute inset-0 z-10 pointer-events-none flex flex-col justify-center ${split ? 'items-start' : 'items-center'}`}
-            style={split ? { paddingLeft: '9vw', paddingBottom: 96 } : { paddingBottom: 224 }}
+            style={phone ? { justifyContent: 'flex-start', paddingTop: '13svh' } : split ? { paddingLeft: '9vw', paddingBottom: 96 } : { paddingBottom: 224 }}
         >
             <motion.div layout layoutDependency={split} transition={t}>
                 <motion.div
@@ -409,7 +437,7 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
                     {/* Over the hologram the role sits on a dark band; it fades out over the mesh.
                         -mx-4 cancels the band padding so the text stays aligned in both states. */}
                     <motion.p {...row}
-                        className={`max-w-3xl -mx-4 px-4 py-1 rounded-md whitespace-nowrap text-lg md:text-xl font-bold transition-colors duration-[1600ms] ${split ? 'text-gray-400 bg-transparent' : 'text-gray-100 bg-obsidian/75'}`}>
+                        className={`max-w-3xl -mx-4 px-4 py-1 rounded-md whitespace-nowrap max-md:whitespace-normal max-md:max-w-[22rem] max-md:text-base text-lg md:text-xl font-bold transition-colors duration-[1600ms] ${split ? 'text-gray-400 bg-transparent' : 'text-gray-100 bg-obsidian/75'}`}>
                         Senior Design Verification Engineer <span className="text-pcbgold font-bold">@ Marvell Technology</span>
                     </motion.p>
                     <motion.div {...row} className="mt-4 h-12 flex items-center">
@@ -418,7 +446,7 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
                                 key={tooltip}
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full font-mono text-sm text-electric shadow-[0_0_15px_rgba(0,243,255,0.2)]"
+                                className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full font-mono text-sm text-electric max-md:max-w-[calc(100vw-2rem)] max-md:rounded-2xl max-md:text-xs max-md:px-4 shadow-[0_0_15px_rgba(0,243,255,0.2)]"
                             >
                                 {tooltip}
                             </motion.div>
@@ -426,7 +454,7 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
                             <span className="text-gray-700 text-xs font-mono animate-pulse">{hint}</span>
                         )}
                     </motion.div>
-                    <motion.div {...row} className="mt-4 text-[10px] text-gray-400 font-mono">
+                    <motion.div {...row} className="mt-4 text-[10px] text-gray-400 font-mono max-md:hidden">
                         Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
                     </motion.div>
                 </motion.div>
@@ -438,11 +466,22 @@ const Copy = ({ split, tooltip, hint, instant }: { split: boolean; tooltip: stri
 // ---------------------------------------------------------------------------
 // Hero
 // ---------------------------------------------------------------------------
+/** Aims the camera at the die the way OrbitControls does, for phones where it isn't mounted. */
+const LookAtOrigin = () => {
+    const { camera } = useThree();
+    useEffect(() => { camera.lookAt(0, 0, 0); }, [camera]);
+    return null;
+};
+
 export default function NocMorphHero({ setTooltip, tooltip }: Props) {
     const instant = !!useReducedMotion();
     const [isMobile, setIsMobile] = useState(false);
     const target = useRef(0);
     const [split, setSplit] = useState(false);
+    // Phones get the morph by tap, framed to fit the narrow screen, with the copy staying centred
+    const phone = usePhone();
+    // Bumped on each phone morph, so the model that fades out forgets its picked block
+    const [epoch, setEpoch] = useState(0);
 
     // Tells ClockProbeBackdrop to swap the page background when the hero splits
     useEffect(() => { window.dispatchEvent(new CustomEvent('hero-split', { detail: split })); }, [split]);
@@ -458,14 +497,16 @@ export default function NocMorphHero({ setTooltip, tooltip }: Props) {
     const down = useRef({ x: 0, y: 0 });
     const toggle = (e: React.MouseEvent) => {
         if (Math.hypot(e.clientX - down.current.x, e.clientY - down.current.y) > 5) return;
+        if (tap.hit) { tap.hit = false; return; } // the tap picked a block
         target.current = target.current > 0.5 ? 0 : 1;
         setSplit(target.current > 0.5);
+        if (phone) { setEpoch(n => n + 1); setTooltip(null); } // drop the old model's pick and caption
     };
 
     return (
         <>
             <div
-                className={`absolute inset-0 z-0 ${isMobile ? 'pointer-events-none' : 'cursor-pointer'}`}
+                className={`absolute inset-0 z-0 ${isMobile && !phone ? 'pointer-events-none' : 'cursor-pointer'}`}
                 style={{
                     opacity: 0.9,
                     maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
@@ -474,16 +515,19 @@ export default function NocMorphHero({ setTooltip, tooltip }: Props) {
                 onPointerDown={e => { down.current = { x: e.clientX, y: e.clientY }; }}
                 onClick={toggle}
             >
-                <Canvas camera={{ position: [0, 5, 8], fov: 45 }} dpr={Math.min(window.devicePixelRatio, 2)}>
+                <Canvas camera={{ position: phone ? [0, 8.4, 13.4] : [0, 5, 8], fov: 45 }} dpr={Math.min(window.devicePixelRatio, 2)}>
                     <ambientLight intensity={0.33} />
                     <directionalLight position={[5, 10, 2]} intensity={0.6} />
                     <pointLight position={[-4, 2, -3]} intensity={5} distance={12} color={C.purple} />
                     <pointLight position={[4, 2, 3]} intensity={5} distance={12} color={C.cyan} />
-                    <MorphScene target={target} instant={instant} setTooltip={setTooltip} />
-                    <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 2} minPolarAngle={0} enabled={!isMobile} />
+                    {/* Phones: tapping a block shows its caption, tapping anywhere else runs the morph */}
+                    <MorphScene target={target} instant={instant} setTooltip={setTooltip} shift={phone ? 0 : SHIFT} drop={phone ? 0.13 : 0} phone={phone} epoch={epoch} />
+                    {/* OrbitControls sets touch-action: none on the canvas, which would stop a phone scrolling past the hero */}
+                    {phone ? <LookAtOrigin /> : <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 2} minPolarAngle={0} enabled={!isMobile} />}
                 </Canvas>
             </div>
-            <Copy split={split} tooltip={tooltip} instant={instant} hint={split ? 'Hover a cluster...' : 'Click the die to boot the network...'} />
+            <Copy split={split && !phone} phone={phone} tooltip={tooltip} instant={instant}
+                hint={phone ? (split ? 'Tap a cluster, or elsewhere to fold back...' : 'Tap a block, or the die to boot the network...') : split ? 'Hover a cluster...' : 'Click the die to boot the network...'} />
         </>
     );
 }

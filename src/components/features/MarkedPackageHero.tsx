@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Cpu } from 'lucide-react';
 import CyberText from '../ui/CyberText';
+import { usePhone } from '../../usePhone';
 
 export type Side = 'top' | 'right' | 'bottom' | 'left';
 
@@ -53,6 +54,7 @@ const PinRow = ({ side, label, desc, onHover }: { side: Side; label: string; des
             }}
             onMouseEnter={() => { setHover(true); onHover(`${label}: ${desc}`); }}
             onMouseLeave={() => setHover(false)}
+            onClick={() => onHover(`${label}: ${desc}`)}
         />
     );
 };
@@ -73,8 +75,9 @@ export const PackageBody = ({ children }: { children: React.ReactNode }) => (
     </div>
 );
 
-/** The pin-row readout's resting text, before a row is hovered. */
-export const PIN_HINT = <span className="text-gray-700 text-xs animate-pulse">Hover a pin row...</span>;
+/** The pin-row readout's resting text, before a row is hovered (tapped, on a phone). */
+const PinHint = () => <span className="text-gray-700 text-xs animate-pulse">{usePhone() ? 'Tap a pin row...' : 'Hover a pin row...'}</span>;
+export const PIN_HINT = <PinHint />;
 
 export const MARKING_LINES = 7;
 
@@ -88,15 +91,15 @@ export const Marking = ({ name, readout, line = (_i, node) => node }: {
     line?: (i: number, node: React.ReactNode) => React.ReactNode;
 }) => (
     <div className="absolute inset-0 flex flex-col items-center justify-center text-center gap-1 font-mono">
-        {line(0, <div className="flex items-center gap-2 mb-2 text-electric text-sm tracking-[0.3em]">
+        {line(0, <div className="flex items-center gap-2 mb-2 text-electric text-sm tracking-[0.3em] max-md:text-[11px] max-md:tracking-[0.12em]">
             <Cpu className="w-5 h-5" /> SYSTEM_ON_CHIP :: VERIFICATION
         </div>)}
         {line(1, name)}
-        {line(2, <div className="-mt-1 text-2xl font-sans font-bold text-gray-300">Senior Design Verification Engineer</div>)}
-        {line(3, <div className="text-2xl font-sans font-bold text-pcbgold">@ Marvell Technology</div>)}
-        {line(4, <div className="mt-8 h-12 flex items-center pointer-events-none">{readout}</div>)}
-        {line(5, <div className="mt-6 text-xs tracking-[0.25em] text-gray-500">MRVL-DV · 2026 · REV 4'h3 · CANADA</div>)}
-        {line(6, <div className="mt-6 text-[10px] text-gray-400">
+        {line(2, <div className="-mt-1 text-2xl max-md:text-base max-md:px-4 font-sans font-bold text-gray-300">Senior Design Verification Engineer</div>)}
+        {line(3, <div className="text-2xl max-md:text-base font-sans font-bold text-pcbgold">@ Marvell Technology</div>)}
+        {line(4, <div className="mt-8 max-md:mt-3 h-12 flex items-center pointer-events-none max-md:px-3">{readout}</div>)}
+        {line(5, <div className="mt-6 max-md:mt-3 text-xs tracking-[0.25em] max-md:text-[10px] max-md:tracking-[0.1em] text-gray-500">MRVL-DV · 2026 · REV 4'h3 · CANADA</div>)}
+        {line(6, <div className="mt-6 text-[10px] text-gray-400 max-md:hidden">
             Tip: Use <span className="text-electric font-bold">j</span> / <span className="text-electric font-bold">k</span> to navigate, <span className="text-electric font-bold">gg</span> / <span className="text-electric font-bold">G</span> to jump, <span className="text-electric font-bold">:</span> for commands
         </div>)}
     </div>
@@ -113,8 +116,10 @@ export default function MarkedPackageHero({ tooltip, setTooltip }: MarkedPackage
     // Pointer position (0..1) drives a gentle lean around the resting 38deg tilt.
     const px = useMotionValue(0.5);
     const py = useMotionValue(0.5);
-    const rotateX = useSpring(useTransform(py, [0, 1], [44, 32]), { stiffness: 60, damping: 18 });
-    const rotateZ = useSpring(useTransform(px, [0, 1], [-10, 10]), { stiffness: 60, damping: 18 });
+    // Phones: the package lies flat, seen straight from above; a narrow package laid back reads as a tall wedge
+    const phone = usePhone();
+    const rotateX = useSpring(useTransform(py, [0, 1], phone ? [0, 0] : [44, 32]), { stiffness: 60, damping: 18 });
+    const rotateZ = useSpring(useTransform(px, [0, 1], phone ? [0, 0] : [-10, 10]), { stiffness: 60, damping: 18 });
 
     useEffect(() => {
         if (reduceMotion) return;
@@ -127,14 +132,14 @@ export default function MarkedPackageHero({ tooltip, setTooltip }: MarkedPackage
     }, [reduceMotion]);
 
     return (
-        <div className="absolute inset-0 z-0 flex items-center justify-center -translate-y-16">
+        <div className="absolute inset-0 z-0 flex items-center justify-center -translate-y-16 max-md:-translate-y-8">
             <motion.div
                 ref={el => { markedPackage.el = el; }}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1 }}
                 style={{ rotateX, rotateZ, transformPerspective: 1400 }}
-                className="relative w-[820px] h-[660px]"
+                className="relative w-[820px] h-[660px] max-md:w-[calc(100vw-88px)] max-md:h-[max(calc(100vw-88px),340px)]"
             >
                 {PIN_ROWS.map(row => <PinRow key={row.side} {...row} onHover={setTooltip} />)}
 
@@ -146,7 +151,7 @@ export default function MarkedPackageHero({ tooltip, setTooltip }: MarkedPackage
                                 key={tooltip}
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full text-sm text-electric shadow-[0_0_15px_rgba(0,243,255,0.2)]"
+                                className="bg-black/80 backdrop-blur-md border border-electric/50 px-6 py-2 rounded-full text-sm text-electric max-md:text-xs max-md:px-3 shadow-[0_0_15px_rgba(0,243,255,0.2)]"
                             >
                                 {tooltip}
                             </motion.div>

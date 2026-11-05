@@ -27,7 +27,6 @@ import VimGutter from './src/components/layout/VimGutter';
 import ChipBootSequence from './src/components/features/ChipBootSequence';
 import BreadboardBootSequence from './src/components/features/BreadboardBootSequence';
 import LaserMarkBootSequence from './src/components/features/LaserMarkBootSequence';
-import MobileWarning from './src/components/features/MobileWarning';
 import WaferCoverage from './src/components/features/WaferCoverage';
 import ExecutionTrace from './src/components/features/ExecutionTrace';
 import MarkedPackageHero from './src/components/features/MarkedPackageHero';
@@ -65,7 +64,6 @@ const AppContent = () => {
         }
         return 'default';
     });
-    const [showMobileWarning, setShowMobileWarning] = useState(false);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
     // Each theme draws its hero and hands over to it
     const BootView = theme === 'default' ? ChipBootSequence : theme === 'light' ? BreadboardBootSequence : LaserMarkBootSequence;
@@ -74,13 +72,6 @@ const AppContent = () => {
         setBootComplete(true);
         // Lets the already-mounted hero replay its intro as the boot screen lifts
         window.dispatchEvent(new Event('boot-done'));
-    }, []);
-
-    useEffect(() => {
-        // Simple check for mobile width
-        if (window.innerWidth < 768) {
-            setShowMobileWarning(true);
-        }
     }, []);
 
     // Vim Navigation Logic
@@ -164,17 +155,7 @@ const AppContent = () => {
     return (
         <ThemeContext.Provider value={theme}>
             <AnimatePresence>
-                {showMobileWarning && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100]"
-                    >
-                        <MobileWarning onProceed={() => setShowMobileWarning(false)} />
-                    </motion.div>
-                )}
-                {!bootComplete && !showMobileWarning && (
+                {!bootComplete && (
                     <motion.div
                         className="fixed inset-0 z-[90]"
                         // Silicon's boot ends lying exactly on the hero, so it just lifts
@@ -206,7 +187,7 @@ const AppContent = () => {
                 <VimGutter />
 
                 {/* Hero Section */}
-                <Section as="header" className="h-screen overflow-hidden relative !pl-8 lg:!pl-8" id="top">
+                <Section as="header" className="h-screen max-md:h-[100svh] max-md:min-h-[100svh] overflow-hidden relative !pl-8 lg:!pl-8" id="top">
                     {theme === 'silicon' ? (
                         <MarkedPackageHero tooltip={tooltip} setTooltip={setTooltip} />
                     ) : theme === 'light' ? (
@@ -227,7 +208,7 @@ const AppContent = () => {
                     <VerificationCoreSection />
 
                 {/* Skills Coverage Dashboard */}
-                <Section fill={false} className="relative overflow-hidden py-48" id="coverage">
+                <Section fill={false} className="relative overflow-hidden py-48 max-md:py-24" id="coverage">
                     <div className="max-w-6xl w-full z-10 relative">
                         <SectionHeader
                             icon={Layers}
@@ -243,7 +224,7 @@ const AppContent = () => {
                 <SideProjectsSection />
 
                 {/* Experience Timeline */}
-                <Section fill={false} className="relative py-48" id="trace">
+                <Section fill={false} className="relative py-48 max-md:py-24" id="trace">
                     <div className="max-w-5xl w-full z-10">
                         <ExecutionTrace />
                     </div>

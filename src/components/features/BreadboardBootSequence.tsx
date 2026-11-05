@@ -162,7 +162,7 @@ const BreadboardBootSequence = ({ onComplete }: { onComplete: () => void }) => {
                 <span className="text-electric" style={{ opacity: Math.floor((p * TOTAL_MS) / 450) % 2 ? 0 : 1 }}> _</span>
             </div>
             <div className="absolute inset-x-0 top-[5%] text-center text-[11px] text-gray-500" style={{ opacity: notes }}>
-                Press any key or click to skip
+                <span className="max-md:hidden">Press any key or click to skip</span><span className="md:hidden">Tap to skip</span>
             </div>
         </div>
     );

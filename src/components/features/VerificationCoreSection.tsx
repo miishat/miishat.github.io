@@ -5,6 +5,8 @@
  * Hovering, focusing or tapping a tree node drives the right card; the right card itself is
  * display-only, so moving the pointer across it never changes what it shows.
  * uvm_test_top (the philosophy) is pinned to the bottom of the right card.
+ * Phones list only the agents (their sqr/drv/mon rows say nothing new), with taller tap rows,
+ * so the inspector stacked under the tree stays in view.
  * @module Components/Features
  * @author Mishat
  */
@@ -62,7 +64,7 @@ const TopologyTree = ({ sel, onSelect }: { sel: string; onSelect: (id: string) =
                         onFocus={() => onSelect(n.id)}
                         onClick={() => onSelect(n.id)}
                         aria-pressed={on}
-                        className={`w-full grid grid-cols-[1fr_auto] px-4 leading-7 text-left focus-visible:outline focus-visible:outline-1 focus-visible:outline-electric ${on ? 'bg-gray-800/70' : 'hover:bg-gray-900/70'}`}
+                        className={`w-full grid grid-cols-[1fr_auto] px-4 leading-7 text-left focus-visible:outline focus-visible:outline-1 focus-visible:outline-electric ${on ? 'bg-gray-800/70' : 'hover:bg-gray-900/70'} ${dim ? 'max-md:hidden' : 'max-md:leading-9'}`}
                     >
                         <span className="whitespace-pre">
                             <span className="text-gray-700">{branch(n)}</span>
@@ -127,7 +129,7 @@ export default function VerificationCoreSection() {
     const node = NODES.find(n => n.id === sel)!;
 
     return (
-        <Section fill={false} className="relative overflow-hidden pt-[28rem] pb-48" id="verification">
+        <Section fill={false} className="relative overflow-hidden pt-[28rem] pb-48 max-md:pt-40 max-md:pb-24" id="verification">
             <div className="max-w-7xl w-full z-10 relative">
                 <SectionHeader icon={Activity} title="Verification Core" subtitle="module portfolio_top;" />
 
