@@ -183,7 +183,7 @@ const IconHeader = ({ icon: Icon, title, subtitle, className }: SectionHeaderPro
             </MagneticWrapper>
             <div className="min-w-0">
                 <h2
-                    className="text-4xl font-bold text-white mb-2 relative"
+                    className="text-4xl max-md:text-[26px] max-md:leading-[1.25] font-bold text-white mb-2 relative"
                     onMouseEnter={() => {
                         // Quick scramble effect
                         let iter = 0;
